@@ -160,8 +160,10 @@
         };
         
         function loadData() {
+                    console.log('loadData called at:', new Date());
             try {
                 const savedData = localStorage.getItem('dashboardData');
+                        console.log('savedData from localStorage:', savedData);
                 if (savedData) {
                     const data = JSON.parse(savedData);
                     updateDashboard(data);
@@ -175,6 +177,7 @@
         }
         
         function updateDashboard(data) {
+                    console.log('updateDashboard called with data:', data);
             const summary = data.projectSummary || DEFAULT_DATA.projectSummary;
             const rag = data.ragStatus || DEFAULT_DATA.ragStatus;
             const buildings = data.physicalProgress || DEFAULT_DATA.physicalProgress;
