@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMC Sirsa - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f0f0; }
+        
+        .login-container { max-width: 400px; margin: 80px auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .login-container h1 { color: #003d82; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .login-btn { width: 100%; padding: 12px; background: #003d82; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .login-btn:hover { background: #002d62; }
+        
+        .admin-panel { display: none; }
+        .admin-panel.active { display: block; }
+        .admin-header { background: #003d82; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-header h1 { margin: 0; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        .admin-content { max-width: 1200px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .edit-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .edit-section h3 { color: #003d82; margin-bottom: 15px; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .kpi-edit { background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid #ddd; }
+        .kpi-edit label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 12px; }
+        .kpi-edit input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; }
+        
+        .photo-upload { background: #fff3cd; border: 2px dashed #ff9800; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
+        .photo-upload input { display: block; margin: 10px auto; }
+        .upload-btn { background: #ff9800; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        
+        .photo-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
+        .photo-item { position: relative; background: #e8e8e8; border-radius: 4px; overflow: hidden; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-item .delete-btn { position: absolute; top: 5px; right: 5px; background: rgba(220,53,69,0.9); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 14px; }
+        
+        .save-btn { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 20px; }
+        .save-btn:hover { background: #218838; }
+        
+        .status-msg { margin-top: 10px; padding: 10px; border-radius: 4px; display: none; }
+        .status-msg.success { background: #d4edda; color: #155724; display: block; }
+        .status-msg.error { background: #f8d7da; color: #721c24; display: block; }
+    </style>
+</head>
+<body>
+    
+    <!-- LOGIN PAGE -->
+    <div class="login-container" id="loginContainer">
+        <h1>🏥 Admin Panel</h1>
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="passwordInput" placeholder="Enter password">
+        </div>
+        <button class="login-btn" onclick="login()">Login</button>
+    </div>
+    
+    <!-- ADMIN PANEL -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h1>GMC Sirsa Dashboard - Admin Panel</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="admin-content">
+            <!-- EDIT KPIs -->
+            <div class="edit-section">
+                <h3>📊 Edit Key Performance Indicators</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-edit">
+                        <label>Physical Progress (%)</label>
+                        <input type="number" id="kpi1" value="26.87" step="0.01">
+                    </div>
+                    <div class="kpi-edit">
+                        <label>Financial Progress (%)</label>
+                        <input type="number" id="kpi2" value="24.26" step="0.01">
+                    </div>
+                    <div class="kpi-edit">
+                        <label>Funds Released (₹ Cr)</label>
+                        <input type="number" id="kpi3" value="134.90" step="0.01">
+                    </div>
+                    <div class="kpi-edit">
+                        <label>Funding Gap (₹ Cr)</label>
+                        <input type="number" id="kpi4" value="66.94" step="0.01">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RAG STATUS -->
+            <div class="edit-section">
+                <h3>📌 RAG Status</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-edit">
+                        <label>Quality Status</label>
+                        <select id="ragQuality">
+                            <option value="GREEN">GREEN ✓</option>
+                            <option value="AMBER">AMBER ⚠</option>
+                            <option value="RED">RED ✕</option>
+                        </select>
+                    </div>
+                    <div class="kpi-edit">
+                        <label>Time Status</label>
+                        <select id="ragTime">
+                            <option value="GREEN">GREEN ✓</option>
+                            <option value="AMBER" selected>AMBER ⚠</option>
+                            <option value="RED">RED ✕</option>
+                        </select>
+                    </div>
+                    <div class="kpi-edit">
+                        <label>Cost Status</label>
+                        <select id="ragCost">
+                            <option value="GREEN">GREEN ✓</option>
+                            <option value="AMBER">AMBER ⚠</option>
+                            <option value="RED" selected>RED ✕</option>
+                        </select>
+                    </div>
+                    <div class="kpi-edit">
+                        <label>Safety Status</label>
+                        <select id="ragSafety">
+                            <option value="GREEN" selected>GREEN ✓</option>
+                            <option value="AMBER">AMBER ⚠</option>
+                            <option value="RED">RED ✕</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PHOTO UPLOAD -->
+            <div class="edit-section">
+                <h3>📸 Upload Progress Photos</h3>
+                <div class="photo-upload">
+                    <p>Upload construction progress photos</p>
+                    <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto()">
+                    <button class="upload-btn" onclick="uploadPhoto()">📤 Add Photo</button>
+                </div>
+                
+                <h4 style="margin-top: 20px;">November 2025 Photos:</h4>
+                <div class="photo-gallery" id="photoGallery"></div>
+            </div>
+            
+            <!-- SAVE -->
+            <button class="save-btn" onclick="saveAllData()">💾 Save Changes</button>
+            <div class="status-msg" id="statusMsg"></div>
+        </div>
+    </div>
+    
+    <script>
+        const PASSWORD = "admin";
+        
+        function login() {
+            const pwd = document.getElementById("passwordInput").value;
+            if (pwd === PASSWORD) {
+                sessionStorage.setItem("loggedIn", "true");
+                document.getElementById("loginContainer").style.display = "none";
+                document.getElementById("adminPanel").classList.add("active");
+                loadSavedData();
+            } else {
+                alert("❌ Incorrect password!");
+            }
+        }
+        
+        function logout() {
+            sessionStorage.removeItem("loggedIn");
+            location.reload();
+        }
+        
+        function previewPhoto() {
+            const file = document.getElementById("photoInput").files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const photoItem = document.createElement("div");
+                    photoItem.className = "photo-item";
+                    photoItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Photo">
+                        <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
+                    `;
+                    document.getElementById("photoGallery").appendChild(photoItem);
+                };
+                reader.readAsDataURL(file);
+                document.getElementById("photoInput").value = "";
+            }
+        }
+        
+        function uploadPhoto() {
+            document.getElementById("photoInput").click();
+        }
+        
+        function saveAllData() {
+            const data = {
+                kpi1: document.getElementById("kpi1").value,
+                kpi2: document.getElementById("kpi2").value,
+                kpi3: document.getElementById("kpi3").value,
+                kpi4: document.getElementById("kpi4").value,
+                ragQuality: document.getElementById("ragQuality").value,
+                ragTime: document.getElementById("ragTime").value,
+                ragCost: document.getElementById("ragCost").value,
+                ragSafety: document.getElementById("ragSafety").value,
+            };
+            
+            localStorage.setItem("dashboardData", JSON.stringify(data));
+            
+            showStatus("✅ Data saved successfully!", "success");
+            setTimeout(() => hideStatus(), 3000);
+        }
+        
+        function loadSavedData() {
+            const saved = localStorage.getItem("dashboardData");
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById("kpi1").value = data.kpi1;
+                document.getElementById("kpi2").value = data.kpi2;
+                document.getElementById("kpi3").value = data.kpi3;
+                document.getElementById("kpi4").value = data.kpi4;
+                document.getElementById("ragQuality").value = data.ragQuality;
+                document.getElementById("ragTime").value = data.ragTime;
+                document.getElementById("ragCost").value = data.ragCost;
+                document.getElementById("ragSafety").value = data.ragSafety;
+            }
+        }
+        
+        function showStatus(msg, type) {
+            const el = document.getElementById("statusMsg");
+            el.textContent = msg;
+            el.className = `status-msg ${type}`;
+        }
+        
+        function hideStatus() {
+            document.getElementById("statusMsg").style.display = "none";
+        }
+        
+        // Check if already logged in
+        window.addEventListener("load", () => {
+            if (sessionStorage.getItem("loggedIn")) {
+                document.getElementById("loginContainer").style.display = "none";
+                document.getElementById("adminPanel").classList.add("active");
+                loadSavedData();
+            }
+        });
+    </script>
+</body>
+</html>
