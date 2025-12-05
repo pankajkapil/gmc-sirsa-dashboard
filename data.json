@@ -1,53 +1,33 @@
 {
   "projectSummary": {
+    "projectName": "GMC Sirsa Medical College Construction",
+    "totalProjectCost": "832 Cr",
     "physicalProgress": 26.87,
-    "financialProgress": 32.15,
-    "fundsReleased": "₹45.82 Cr",
-    "fundingGap": "₹3.24 Cr"
+    "financialProgress": 24.26,
+    "totalFundsReleased": "134.90 Cr",
+    "financialProgressAmount": "201.84 Cr",
+    "fundingGap": "67.10 Cr"
   },
   "ragStatus": {
     "quality": "GREEN",
     "timeline": "GREEN",
-    "cost": "GREEN",
+    "cost": "AMBER",
     "safety": "GREEN"
   },
   "physicalProgress": {
-    "MainBuilding": 32,
-    "ClassroomBlock": 28,
-    "LaboratoryBuilding": 22,
-    "LibraryBlock": 18,
-    "HostelBlock": 25,
-    "AdminBlock": 30,
-    "AuditoriumComplex": 20,
-    "StorageWarehousing": 35,
-    "UPS_DG_Infrastructure": 40,
-    "RoofTopSolarSystem": 15,
-    "CampusRoads_Landscaping": 28
+    "External Development/Road": 15,
+    "Junior & Senior Resident (S+12)": 28,
+    "Boys Hostel (G+8)": 22,
+    "Nursing Girls Hostel (G+8)": 25,
+    "Girls Hostel (G+6)": 18,
+    "Hospital Block (B+G+7)": 32,
+    "Service Block": 20,
+    "Vishram Sarai (G+2)": 30,
+    "Medical College (B+G+5)": 29,
+    "Director & MS Residence (G+1)": 35,
+    "Paramedical Block (B+G+6)": 24,
+    "Common Basement": 26
   },
-  "financialStatus": {
-    "totalContractValue": 49.06,
-    "released": 45.82,
-    "pendingRelease": 3.24,
-    "utilization": 44.56
-  },
-  "qualityAssurance": [
-    {"material": "Cement", "samples": 45, "passed": 44, "percentage": 97.8},
-    {"material": "Steel", "samples": 38, "passed": 38, "percentage": 100},
-    {"material": "Concrete", "samples": 52, "passed": 50, "percentage": 96.2}
-  ],
-  "timeline": [
-    {"milestone": "Foundation Complete", "planned": "2024-03-31", "actual": "2024-03-28", "status": "Completed"},
-    {"milestone": "Structural Work 50%", "planned": "2024-09-30", "actual": "2024-10-15", "status": "In Progress"},
-    {"milestone": "Finishing Work Start", "planned": "2025-03-31", "actual": null, "status": "Pending"}
-  ],
-  "safetyKPIs": {
-    "totalWorkingDays": 285,
-    "lostTimeInjuries": 0,
-    "nearMisses": 3,
-    "safetyAuditsDone": 12,
-    "ltifr": 0
-  },
-  "photoGallery": {
-    "november2025": []
-  }
+  "lastUpdated": "2025-11-30",
+  "updatedBy": "Admin"
 }
