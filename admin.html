@@ -227,11 +227,11 @@
     
     // Get building progress from form
     const buildings = {};
+                const existingBuildings = existingData.physicalProgress || {};
     BUILDINGS.forEach(building => {
       const input = document.querySelector(`[data-building="${building}"]`);
       if (input) {
-        buildings[building] = parseFloat(input.value) || 0;
-      }
+buildings[building] = parseFloat(input.value) || existingBuildings[building] || 0;      }
     });
     
     // Update summary ONLY if values are provided in the form (not empty)
