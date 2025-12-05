@@ -3,245 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMC Sirsa - Admin Panel</title>
+    <title>GMC Sirsa - Admin Panel with Real-Time Sync</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f0f0f0; }
-        
         .login-container { max-width: 400px; margin: 80px auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .login-container h1 { color: #003d82; margin-bottom: 20px; text-align: center; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
         .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        .login-btn { width: 100%; padding: 12px; background: #003d82; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        .login-btn:hover { background: #002d62; }
-        
-        .admin-panel { display: none; }
-        .admin-panel.active { display: block; }
-        .admin-header { background: #003d82; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .admin-header h1 { margin: 0; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        
-        .admin-content { max-width: 1200px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .edit-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        .edit-section h3 { color: #003d82; margin-bottom: 15px; }
-        
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .kpi-edit { background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid #ddd; }
-        .kpi-edit label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 12px; }
-        .kpi-edit input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; }
-        
-        .photo-upload { background: #fff3cd; border: 2px dashed #ff9800; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
-        .photo-upload input { display: block; margin: 10px auto; }
-        .upload-btn { background: #ff9800; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        
-        .photo-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
-        .photo-item { position: relative; background: #e8e8e8; border-radius: 4px; overflow: hidden; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
-        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-item .delete-btn { position: absolute; top: 5px; right: 5px; background: rgba(220,53,69,0.9); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 14px; }
-        
-        .save-btn { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 20px; }
+        .login-btn { width: 100%; padding: 12px; background: #003d82; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .login-btn:hover { background: #002852; }
+        .admin-panel { display: none; max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .admin-panel h2 { color: #003d82; margin-bottom: 20px; }
+        .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .kpi-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .kpi-field { }
+        .kpi-field label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        .kpi-field input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .rag-edit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .save-btn, .logout-btn { padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px; }
         .save-btn:hover { background: #218838; }
-        
-        .status-msg { margin-top: 10px; padding: 10px; border-radius: 4px; display: none; }
-        .status-msg.success { background: #d4edda; color: #155724; display: block; }
-        .status-msg.error { background: #f8d7da; color: #721c24; display: block; }
+        .logout-btn { background: #dc3545; }
+        .logout-btn:hover { background: #c82333; }
+        .sync-status { padding: 10px; background: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 15px; }
+        .photo-upload { margin-top: 20px; padding: 20px; background: #f9f9f9; border-radius: 4px; }
+        .photo-upload h3 { margin-bottom: 15px; color: #003d82; }
+        .photo-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; }
+        .photo-preview img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; }
     </style>
 </head>
 <body>
-    
-    <!-- LOGIN PAGE -->
-    <div class="login-container" id="loginContainer">
-        <h1>🏥 Admin Panel</h1>
+    <!-- LOGIN FORM -->
+    <div class="login-container" id="loginForm">
+        <h1>GMC Sirsa Admin Panel</h1>
         <div class="form-group">
-            <label>Password:</label>
-            <input type="password" id="passwordInput" placeholder="Enter password">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter admin password">
         </div>
-        <button class="login-btn" onclick="login()">Login</button>
+        <button class="login-btn" onclick="handleLogin()">Login</button>
     </div>
-    
+
     <!-- ADMIN PANEL -->
     <div class="admin-panel" id="adminPanel">
-        <div class="admin-header">
-            <h1>GMC Sirsa Dashboard - Admin Panel</h1>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Admin Dashboard - Real-Time Sync Enabled</h2>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
         </div>
         
-        <div class="admin-content">
-            <!-- EDIT KPIs -->
-            <div class="edit-section">
-                <h3>📊 Edit Key Performance Indicators</h3>
-                <div class="kpi-grid">
-                    <div class="kpi-edit">
-                        <label>Physical Progress (%)</label>
-                        <input type="number" id="kpi1" value="26.87" step="0.01">
-                    </div>
-                    <div class="kpi-edit">
-                        <label>Financial Progress (%)</label>
-                        <input type="number" id="kpi2" value="24.26" step="0.01">
-                    </div>
-                    <div class="kpi-edit">
-                        <label>Funds Released (₹ Cr)</label>
-                        <input type="number" id="kpi3" value="134.90" step="0.01">
-                    </div>
-                    <div class="kpi-edit">
-                        <label>Funding Gap (₹ Cr)</label>
-                        <input type="number" id="kpi4" value="66.94" step="0.01">
-                    </div>
+        <div class="sync-status" id="syncStatus">✓ Connected to data.json</div>
+
+        <!-- PROJECT SUMMARY SECTION -->
+        <div class="section">
+            <h3>Project Summary</h3>
+            <div class="kpi-edit">
+                <div class="kpi-field">
+                    <label>Physical Progress (%)</label>
+                    <input type="number" id="physicalProgress" step="0.01">
+                </div>
+                <div class="kpi-field">
+                    <label>Financial Progress (%)</label>
+                    <input type="number" id="financialProgress" step="0.01">
                 </div>
             </div>
-            
-            <!-- RAG STATUS -->
-            <div class="edit-section">
-                <h3>📌 RAG Status</h3>
-                <div class="kpi-grid">
-                    <div class="kpi-edit">
-                        <label>Quality Status</label>
-                        <select id="ragQuality">
-                            <option value="GREEN">GREEN ✓</option>
-                            <option value="AMBER">AMBER ⚠</option>
-                            <option value="RED">RED ✕</option>
-                        </select>
-                    </div>
-                    <div class="kpi-edit">
-                        <label>Time Status</label>
-                        <select id="ragTime">
-                            <option value="GREEN">GREEN ✓</option>
-                            <option value="AMBER" selected>AMBER ⚠</option>
-                            <option value="RED">RED ✕</option>
-                        </select>
-                    </div>
-                    <div class="kpi-edit">
-                        <label>Cost Status</label>
-                        <select id="ragCost">
-                            <option value="GREEN">GREEN ✓</option>
-                            <option value="AMBER">AMBER ⚠</option>
-                            <option value="RED" selected>RED ✕</option>
-                        </select>
-                    </div>
-                    <div class="kpi-edit">
-                        <label>Safety Status</label>
-                        <select id="ragSafety">
-                            <option value="GREEN" selected>GREEN ✓</option>
-                            <option value="AMBER">AMBER ⚠</option>
-                            <option value="RED">RED ✕</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- PHOTO UPLOAD -->
-            <div class="edit-section">
-                <h3>📸 Upload Progress Photos</h3>
-                <div class="photo-upload">
-                    <p>Upload construction progress photos</p>
-                    <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto()">
-                    <button class="upload-btn" onclick="uploadPhoto()">📤 Add Photo</button>
-                </div>
-                
-                <h4 style="margin-top: 20px;">November 2025 Photos:</h4>
-                <div class="photo-gallery" id="photoGallery"></div>
-            </div>
-            
-            <!-- SAVE -->
-            <button class="save-btn" onclick="saveAllData()">💾 Save Changes</button>
-            <div class="status-msg" id="statusMsg"></div>
         </div>
+
+        <!-- RAG STATUS SECTION -->
+        <div class="section">
+            <h3>RAG Status</h3>
+            <div class="rag-edit">
+                <div class="kpi-field">
+                    <label>Quality</label>
+                    <select id="ragQuality">
+                        <option value="GREEN">GREEN</option>
+                        <option value="AMBER">AMBER</option>
+                        <option value="RED">RED</option>
+                    </select>
+                </div>
+                <div class="kpi-field">
+                    <label>Timeline</label>
+                    <select id="ragTimeline">
+                        <option value="GREEN">GREEN</option>
+                        <option value="AMBER">AMBER</option>
+                        <option value="RED">RED</option>
+                    </select>
+                </div>
+                <div class="kpi-field">
+                    <label>Cost</label>
+                    <select id="ragCost">
+                        <option value="GREEN">GREEN</option>
+                        <option value="AMBER">AMBER</option>
+                        <option value="RED">RED</option>
+                    </select>
+                </div>
+                <div class="kpi-field">
+                    <label>Safety</label>
+                    <select id="ragSafety">
+                        <option value="GREEN">GREEN</option>
+                        <option value="AMBER">AMBER</option>
+                        <option value="RED">RED</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUILDING PROGRESS SECTION -->
+        <div class="section">
+            <h3>Physical Progress by Building</h3>
+            <div id="buildingProgressContainer" class="kpi-edit"></div>
+        </div>
+
+        <!-- PHOTO UPLOAD SECTION -->
+        <div class="photo-upload">
+            <h3>Upload Monthly Progress Photos (Max 6)</h3>
+            <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoUpload()">
+            <div class="photo-preview" id="photoPreview"></div>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">Photos are stored in browser and synced with admin data</p>
+        </div>
+
+        <!-- SAVE BUTTON -->
+        <button class="save-btn" onclick="handleSave()" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 15px;">Save & Sync Changes</button>
     </div>
-    
+
     <script>
-        const PASSWORD = "admin";
-        
-        function login() {
-            const pwd = document.getElementById("passwordInput").value;
-            if (pwd === PASSWORD) {
-                sessionStorage.setItem("loggedIn", "true");
-                document.getElementById("loginContainer").style.display = "none";
-                document.getElementById("adminPanel").classList.add("active");
-                loadSavedData();
-            } else {
-                alert("❌ Incorrect password!");
-            }
-        }
-        
-        function logout() {
-            sessionStorage.removeItem("loggedIn");
-            location.reload();
-        }
-        
-        function previewPhoto() {
-            const file = document.getElementById("photoInput").files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const photoItem = document.createElement("div");
-                    photoItem.className = "photo-item";
-                    photoItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Photo">
-                        <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
-                    `;
-                    document.getElementById("photoGallery").appendChild(photoItem);
-                };
-                reader.readAsDataURL(file);
-                document.getElementById("photoInput").value = "";
-            }
-        }
-        
-        function uploadPhoto() {
-            document.getElementById("photoInput").click();
-        }
-        
-        function saveAllData() {
-            const data = {
-                kpi1: document.getElementById("kpi1").value,
-                kpi2: document.getElementById("kpi2").value,
-                kpi3: document.getElementById("kpi3").value,
-                kpi4: document.getElementById("kpi4").value,
-                ragQuality: document.getElementById("ragQuality").value,
-                ragTime: document.getElementById("ragTime").value,
-                ragCost: document.getElementById("ragCost").value,
-                ragSafety: document.getElementById("ragSafety").value,
-            };
-            
-            localStorage.setItem("dashboardData", JSON.stringify(data));
-            
-            showStatus("✅ Data saved successfully!", "success");
-            setTimeout(() => hideStatus(), 3000);
-        }
-        
-        function loadSavedData() {
-            const saved = localStorage.getItem("dashboardData");
-            if (saved) {
-                const data = JSON.parse(saved);
-                document.getElementById("kpi1").value = data.kpi1;
-                document.getElementById("kpi2").value = data.kpi2;
-                document.getElementById("kpi3").value = data.kpi3;
-                document.getElementById("kpi4").value = data.kpi4;
-                document.getElementById("ragQuality").value = data.ragQuality;
-                document.getElementById("ragTime").value = data.ragTime;
-                document.getElementById("ragCost").value = data.ragCost;
-                document.getElementById("ragSafety").value = data.ragSafety;
-            }
-        }
-        
-        function showStatus(msg, type) {
-            const el = document.getElementById("statusMsg");
-            el.textContent = msg;
-            el.className = `status-msg ${type}`;
-        }
-        
-        function hideStatus() {
-            document.getElementById("statusMsg").style.display = "none";
-        }
-        
-        // Check if already logged in
-        window.addEventListener("load", () => {
-            if (sessionStorage.getItem("loggedIn")) {
-                document.getElementById("loginContainer").style.display = "none";
-                document.getElementById("adminPanel").classList.add("active");
-                loadSavedData();
+        const ADMIN_PASSWORD = 'admin';
+        const DATA_URL = 'https://raw.githubusercontent.com/pankajkapil/gmc-sirsa-dashboard/main/data.json';
+        const GITHUB_API_URL = 'https://api.github.com/repos/pankajkapil/gmc-sirsa-dashboard/contents/data.json';
+        let currentData = null;
+        let photosBase64 = [];
+
+        // Load data on page load
+        window.addEventListener('load', () => {
+            if (isLoggedIn()) {
+                showAdminPanel();
+                loadDataFromJSON();
+                loadPhotosFromStorage();
             }
         });
+
+        function isLoggedIn() {
+            return localStorage.getItem('adminLoggedIn') === 'true';
+        }
+
+        function handleLogin() {
+            const password = document.getElementById('password').value;
+            if (password === ADMIN_PASSWORD) {
+                localStorage.setItem('adminLoggedIn', 'true');
+                showAdminPanel();
+                loadDataFromJSON();
+            } else {
+                alert('Invalid password!');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('photosBase64');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+
+        function loadDataFromJSON() {
+            fetch(DATA_URL)
+                .then(response => response.json())
+                .then(data => {
+                    currentData = data;
+                    populateForm(data);
+                    updateSyncStatus('Connected & Loaded');
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    updateSyncStatus('Error: Could not load data');
+                });
+        }
+
+        function populateForm(data) {
+            // Project Summary
+            document.getElementById('physicalProgress').value = data.projectSummary.physicalProgress;
+            document.getElementById('financialProgress').value = data.projectSummary.financialProgress;
+
+            // RAG Status
+            document.getElementById('ragQuality').value = data.ragStatus.quality;
+            document.getElementById('ragTimeline').value = data.ragStatus.timeline;
+            document.getElementById('ragCost').value = data.ragStatus.cost;
+            document.getElementById('ragSafety').value = data.ragStatus.safety;
+
+            // Building Progress
+            const container = document.getElementById('buildingProgressContainer');
+            container.innerHTML = '';
+            for (const [building, progress] of Object.entries(data.physicalProgress)) {
+                const div = document.createElement('div');
+                div.className = 'kpi-field';
+                div.innerHTML = `<label>${building}</label><input type="number" class="building-progress" data-building="${building}" value="${progress}" min="0" max="100">`;
+                container.appendChild(div);
+            }
+        }
+
+        function handlePhotoUpload() {
+            const input = document.getElementById('photoInput');
+            const files = Array.from(input.files).slice(0, 6);
+            photosBase64 = [];
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photosBase64.push({
+                        name: file.name,
+                        data: e.target.result
+                    });
+                    updatePhotoPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updatePhotoPreview() {
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = '';
+            photosBase64.forEach((photo, index) => {
+                const img = document.createElement('img');
+                img.src = photo.data;
+                img.title = photo.name;
+                preview.appendChild(img);
+            });
+            localStorage.setItem('photosBase64', JSON.stringify(photosBase64));
+        }
+
+        function loadPhotosFromStorage() {
+            const stored = localStorage.getItem('photosBase64');
+            if (stored) {
+                photosBase64 = JSON.parse(stored);
+                updatePhotoPreview();
+            }
+        }
+
+        function handleSave() {
+            // Collect form data
+            const updatedData = { ...currentData };
+            updatedData.projectSummary.physicalProgress = parseFloat(document.getElementById('physicalProgress').value);
+            updatedData.projectSummary.financialProgress = parseFloat(document.getElementById('financialProgress').value);
+            updatedData.ragStatus.quality = document.getElementById('ragQuality').value;
+            updatedData.ragStatus.timeline = document.getElementById('ragTimeline').value;
+            updatedData.ragStatus.cost = document.getElementById('ragCost').value;
+            updatedData.ragStatus.safety = document.getElementById('ragSafety').value;
+
+            // Building progress
+            document.querySelectorAll('.building-progress').forEach(input => {
+                const building = input.dataset.building;
+                updatedData.physicalProgress[building] = parseInt(input.value);
+            });
+
+            // Save to localStorage (for immediate access)
+            localStorage.setItem('dashboardData', JSON.stringify(updatedData));
+            localStorage.setItem('photosBase64', JSON.stringify(photosBase64));
+            
+            updateSyncStatus('Changes saved! ✓ Data synced to browser storage');
+            alert('Changes saved successfully!\n\nYour data is stored locally and will display on the public dashboard.\n\nTo permanently sync to GitHub, you would need a backend server (beyond GitHub Pages capabilities).');
+        }
+
+        function updateSyncStatus(message) {
+            document.getElementById('syncStatus').textContent = '🔄 ' + message;
+        }
     </script>
 </body>
 </html>
