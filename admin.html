@@ -3,273 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMC Sirsa - Admin Panel with Real-Time Sync</title>
+    <title>GMC Sirsa - Admin Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f0f0f0; }
-        .login-container { max-width: 400px; margin: 80px auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .login-container h1 { color: #003d82; margin-bottom: 20px; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        .login-btn { width: 100%; padding: 12px; background: #003d82; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .login-btn:hover { background: #002852; }
-        .admin-panel { display: none; max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .admin-panel h2 { color: #003d82; margin-bottom: 20px; }
-        .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        .kpi-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .kpi-field { }
-        .kpi-field label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
-        .kpi-field input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .rag-edit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .save-btn, .logout-btn { padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px; }
-        .save-btn:hover { background: #218838; }
-        .logout-btn { background: #dc3545; }
+        .admin-panel { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 20px; }
+        .logout-btn { float: right; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
         .logout-btn:hover { background: #c82333; }
-        .sync-status { padding: 10px; background: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 15px; }
-        .photo-upload { margin-top: 20px; padding: 20px; background: #f9f9f9; border-radius: 4px; }
-        .photo-upload h3 { margin-bottom: 15px; color: #003d82; }
-        .photo-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; }
-        .photo-preview img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-group textarea { min-height: 100px; }
+        .save-btn { padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+        .save-btn:hover { background: #218838; }
+        .building-section { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-radius: 4px; border-left: 4px solid #007bff; }
+        .building-section h3 { color: #007bff; margin-bottom: 10px; }
+        .status-message { padding: 10px; margin-bottom: 10px; border-radius: 4px; display: none; }
+        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .three-column { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
     </style>
 </head>
 <body>
-    <!-- LOGIN FORM -->
-    <div class="login-container" id="loginForm">
-        <h1>GMC Sirsa Admin Panel</h1>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter admin password">
-        </div>
-        <button class="login-btn" onclick="handleLogin()">Login</button>
-    </div>
-
-    <!-- ADMIN PANEL -->
-    <div class="admin-panel" id="adminPanel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Admin Dashboard - Real-Time Sync Enabled</h2>
-            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+    <div class="admin-panel">
+        <div id="login-page">
+            <h1>Admin Login</h1>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter admin password">
+            </div>
+            <button class="save-btn" onclick="login()">Login</button>
         </div>
         
-        <div class="sync-status" id="syncStatus">✓ Connected to data.json</div>
-
-        <!-- PROJECT SUMMARY SECTION -->
-        <div class="section">
-            <h3>Project Summary</h3>
-            <div class="kpi-edit">
-                <div class="kpi-field">
-                    <label>Physical Progress (%)</label>
-                    <input type="number" id="physicalProgress" step="0.01">
+        <div id="admin-page" style="display: none;">
+            <h1>Admin Dashboard - Real-Time Sync Enabled
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </h1>
+            <div class="status-message" id="status-message"></div>
+            
+            <h2 style="color: #333; margin-top: 30px; margin-bottom: 15px;">Project Summary</h2>
+            <div class="two-column">
+                <div class="form-group">
+                    <label>Total Project Cost (₹ Cr):</label>
+                    <input type="text" id="totalProjectCost" placeholder="e.g., 832">
                 </div>
-                <div class="kpi-field">
-                    <label>Financial Progress (%)</label>
-                    <input type="number" id="financialProgress" step="0.01">
+                <div class="form-group">
+                    <label>Financial Progress Amount (₹ Cr):</label>
+                    <input type="text" id="financialProgressAmount" placeholder="e.g., 201.84">
                 </div>
             </div>
-        </div>
-
-        <!-- RAG STATUS SECTION -->
-        <div class="section">
-            <h3>RAG Status</h3>
-            <div class="rag-edit">
-                <div class="kpi-field">
-                    <label>Quality</label>
+            <div class="two-column">
+                <div class="form-group">
+                    <label>Total Funds Released (₹ Cr):</label>
+                    <input type="text" id="totalFundsReleased" placeholder="e.g., 134.90">
+                </div>
+                <div class="form-group">
+                    <label>Funding Gap (₹ Cr):</label>
+                    <input type="text" id="fundingGap" placeholder="e.g., 67.10">
+                </div>
+            </div>
+            <div class="two-column">
+                <div class="form-group">
+                    <label>Physical Progress (%):</label>
+                    <input type="number" id="physicalProgress" placeholder="e.g., 26.87">
+                </div>
+                <div class="form-group">
+                    <label>Financial Progress (%):</label>
+                    <input type="number" id="financialProgress" placeholder="e.g., 24.26">
+                </div>
+            </div>
+            
+            <h2 style="color: #333; margin-top: 30px; margin-bottom: 15px;">RAG Status</h2>
+            <div class="three-column">
+                <div class="form-group">
+                    <label>Quality:</label>
                     <select id="ragQuality">
-                        <option value="GREEN">GREEN</option>
-                        <option value="AMBER">AMBER</option>
-                        <option value="RED">RED</option>
+                        <option>GREEN</option>
+                        <option>AMBER</option>
+                        <option>RED</option>
                     </select>
                 </div>
-                <div class="kpi-field">
-                    <label>Timeline</label>
+                <div class="form-group">
+                    <label>Timeline:</label>
                     <select id="ragTimeline">
-                        <option value="GREEN">GREEN</option>
-                        <option value="AMBER">AMBER</option>
-                        <option value="RED">RED</option>
+                        <option>GREEN</option>
+                        <option>AMBER</option>
+                        <option>RED</option>
                     </select>
                 </div>
-                <div class="kpi-field">
-                    <label>Cost</label>
+                <div class="form-group">
+                    <label>Cost:</label>
                     <select id="ragCost">
-                        <option value="GREEN">GREEN</option>
-                        <option value="AMBER">AMBER</option>
-                        <option value="RED">RED</option>
-                    </select>
-                </div>
-                <div class="kpi-field">
-                    <label>Safety</label>
-                    <select id="ragSafety">
-                        <option value="GREEN">GREEN</option>
-                        <option value="AMBER">AMBER</option>
-                        <option value="RED">RED</option>
+                        <option>GREEN</option>
+                        <option>AMBER</option>
+                        <option>RED</option>
                     </select>
                 </div>
             </div>
+            <div class="form-group" style="max-width: 33.33%; display: inline-block; width: calc(33.33% - 14px); margin-right: 20px;">
+                <label>Safety:</label>
+                <select id="ragSafety">
+                    <option>GREEN</option>
+                    <option>AMBER</option>
+                    <option>RED</option>
+                </select>
+            </div>
+            
+            <h2 style="color: #333; margin-top: 30px; margin-bottom: 15px;">Physical Progress by Building</h2>
+            <div id="buildings-container"></div>
+            
+            <button class="save-btn" onclick="handleSave()" style="margin-top: 30px; margin-bottom: 30px;">Save All Changes</button>
         </div>
-
-        <!-- BUILDING PROGRESS SECTION -->
-        <div class="section">
-            <h3>Physical Progress by Building</h3>
-            <div id="buildingProgressContainer" class="kpi-edit"></div>
-        </div>
-
-        <!-- PHOTO UPLOAD SECTION -->
-        <div class="photo-upload">
-            <h3>Upload Monthly Progress Photos (Max 6)</h3>
-            <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoUpload()">
-            <div class="photo-preview" id="photoPreview"></div>
-            <p style="font-size: 12px; color: #666; margin-top: 10px;">Photos are stored in browser and synced with admin data</p>
-        </div>
-
-        <!-- SAVE BUTTON -->
-        <button class="save-btn" onclick="handleSave()" style="margin-top: 20px; width: 100%; font-size: 16px; padding: 15px;">Save & Sync Changes</button>
     </div>
-
+    
     <script>
         const ADMIN_PASSWORD = 'admin';
         const DATA_URL = 'https://raw.githubusercontent.com/pankajkapil/gmc-sirsa-dashboard/main/data.json';
-        const GITHUB_API_URL = 'https://api.github.com/repos/pankajkapil/gmc-sirsa-dashboard/contents/data.json';
         let currentData = null;
-        let photosBase64 = [];
-
-        // Load data on page load
-        window.addEventListener('load', () => {
-            if (isLoggedIn()) {
-                showAdminPanel();
-                loadDataFromJSON();
-                loadPhotosFromStorage();
-            }
-        });
-
-        function isLoggedIn() {
-            return localStorage.getItem('adminLoggedIn') === 'true';
-        }
-
-        function handleLogin() {
+        
+        // Buildings list with correct names
+        const BUILDINGS = [
+            'External Development/Road',
+            'Junior & Senior Resident (S+12)',
+            'Boys Hostel (G+8)',
+            'Nursing Girls Hostel (G+8)',
+            'Girls Hostel (G+6)',
+            'Hospital Block (B+G+7)',
+            'Service Block',
+            'Vishram Sarai (G+2)',
+            'Medical College (B+G+5)',
+            'Director & MS Residence (G+1)',
+            'Paramedical Block (B+G+6)',
+            'Common Basement'
+        ];
+        
+        function login() {
             const password = document.getElementById('password').value;
             if (password === ADMIN_PASSWORD) {
                 localStorage.setItem('adminLoggedIn', 'true');
+                loadData();
                 showAdminPanel();
-                loadDataFromJSON();
             } else {
                 alert('Invalid password!');
             }
         }
-
-        function handleLogout() {
+        
+        function logout() {
             localStorage.removeItem('adminLoggedIn');
-            localStorage.removeItem('photosBase64');
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('admin-page').style.display = 'none';
             document.getElementById('password').value = '';
         }
-
+        
         function showAdminPanel() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('admin-page').style.display = 'block';
+            renderBuildingFields();
         }
-
-        function loadDataFromJSON() {
-            fetch(DATA_URL)
-                .then(response => response.json())
-                .then(data => {
-                    currentData = data;
-                    populateForm(data);
-                    updateSyncStatus('Connected & Loaded');
-                })
-                .catch(error => {
-                    console.error('Error loading data:', error);
-                    updateSyncStatus('Error: Could not load data');
-                });
-        }
-
-        function populateForm(data) {
-            // Project Summary
-            document.getElementById('physicalProgress').value = data.projectSummary.physicalProgress;
-            document.getElementById('financialProgress').value = data.projectSummary.financialProgress;
-
-            // RAG Status
-            document.getElementById('ragQuality').value = data.ragStatus.quality;
-            document.getElementById('ragTimeline').value = data.ragStatus.timeline;
-            document.getElementById('ragCost').value = data.ragStatus.cost;
-            document.getElementById('ragSafety').value = data.ragStatus.safety;
-
-            // Building Progress
-            const container = document.getElementById('buildingProgressContainer');
+        
+        function renderBuildingFields() {
+            const container = document.getElementById('buildings-container');
             container.innerHTML = '';
-            for (const [building, progress] of Object.entries(data.physicalProgress)) {
-                const div = document.createElement('div');
-                div.className = 'kpi-field';
-                div.innerHTML = `<label>${building}</label><input type="number" class="building-progress" data-building="${building}" value="${progress}" min="0" max="100">`;
-                container.appendChild(div);
+            BUILDINGS.forEach(building => {
+                const section = document.createElement('div');
+                section.className = 'building-section';
+                section.innerHTML = `
+                    <h3>${building}</h3>
+                    <div class="form-group">
+                        <label>Progress (%):</label>
+                        <input type="number" class="building-progress" data-building="${building}" placeholder="0-100">
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+        }
+        
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('dashboardData');
+                if (savedData) {
+                    currentData = JSON.parse(savedData);
+                    populateFields();
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
             }
         }
-
-        function handlePhotoUpload() {
-            const input = document.getElementById('photoInput');
-            const files = Array.from(input.files).slice(0, 6);
-            photosBase64 = [];
-
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    photosBase64.push({
-                        name: file.name,
-                        data: e.target.result
-                    });
-                    updatePhotoPreview();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function updatePhotoPreview() {
-            const preview = document.getElementById('photoPreview');
-            preview.innerHTML = '';
-            photosBase64.forEach((photo, index) => {
-                const img = document.createElement('img');
-                img.src = photo.data;
-                img.title = photo.name;
-                preview.appendChild(img);
-            });
-            localStorage.setItem('photosBase64', JSON.stringify(photosBase64));
-        }
-
-        function loadPhotosFromStorage() {
-            const stored = localStorage.getItem('photosBase64');
-            if (stored) {
-                photosBase64 = JSON.parse(stored);
-                updatePhotoPreview();
-            }
-        }
-
-        function handleSave() {
-            // Collect form data
-            const updatedData = { ...currentData };
-            updatedData.projectSummary.physicalProgress = parseFloat(document.getElementById('physicalProgress').value);
-            updatedData.projectSummary.financialProgress = parseFloat(document.getElementById('financialProgress').value);
-            updatedData.ragStatus.quality = document.getElementById('ragQuality').value;
-            updatedData.ragStatus.timeline = document.getElementById('ragTimeline').value;
-            updatedData.ragStatus.cost = document.getElementById('ragCost').value;
-            updatedData.ragStatus.safety = document.getElementById('ragSafety').value;
-
-            // Building progress
-            document.querySelectorAll('.building-progress').forEach(input => {
-                const building = input.dataset.building;
-                updatedData.physicalProgress[building] = parseInt(input.value);
-            });
-
-            // Save to localStorage (for immediate access)
-            localStorage.setItem('dashboardData', JSON.stringify(updatedData));
-            localStorage.setItem('photosBase64', JSON.stringify(photosBase64));
+        
+        function populateFields() {
+            if (!currentData) return;
             
-            updateSyncStatus('Changes saved! ✓ Data synced to browser storage');
-            alert('Changes saved successfully!\n\nYour data is stored locally and will display on the public dashboard.\n\nTo permanently sync to GitHub, you would need a backend server (beyond GitHub Pages capabilities).');
+            const summary = currentData.projectSummary || {};
+            const rag = currentData.ragStatus || {};
+            const buildings = currentData.physicalProgress || {};
+            
+            document.getElementById('totalProjectCost').value = summary.totalProjectCost || '';
+            document.getElementById('financialProgressAmount').value = summary.financialProgressAmount || '';
+            document.getElementById('totalFundsReleased').value = summary.totalFundsReleased || '';
+            document.getElementById('fundingGap').value = summary.fundingGap || '';
+            document.getElementById('physicalProgress').value = summary.physicalProgress || '';
+            document.getElementById('financialProgress').value = summary.financialProgress || '';
+            
+            document.getElementById('ragQuality').value = rag.quality || 'GREEN';
+            document.getElementById('ragTimeline').value = rag.timeline || 'GREEN';
+            document.getElementById('ragCost').value = rag.cost || 'GREEN';
+            document.getElementById('ragSafety').value = rag.safety || 'GREEN';
+            
+            BUILDINGS.forEach(building => {
+                const input = document.querySelector(`[data-building="${building}"]`);
+                if (input) {
+                    input.value = buildings[building] || '';
+                }
+            });
         }
-
-        function updateSyncStatus(message) {
-            document.getElementById('syncStatus').textContent = '🔄 ' + message;
+        
+        function handleSave() {
+            const summary = {
+                projectName: 'GMC Sirsa Medical College Construction',
+                totalProjectCost: document.getElementById('totalProjectCost').value,
+                physicalProgress: parseFloat(document.getElementById('physicalProgress').value) || 0,
+                financialProgress: parseFloat(document.getElementById('financialProgress').value) || 0,
+                totalFundsReleased: document.getElementById('totalFundsReleased').value,
+                financialProgressAmount: document.getElementById('financialProgressAmount').value,
+                fundingGap: document.getElementById('fundingGap').value
+            };
+            
+            const rag = {
+                quality: document.getElementById('ragQuality').value,
+                timeline: document.getElementById('ragTimeline').value,
+                cost: document.getElementById('ragCost').value,
+                safety: document.getElementById('ragSafety').value
+            };
+            
+            const buildings = {};
+            BUILDINGS.forEach(building => {
+                const input = document.querySelector(`[data-building="${building}"]`);
+                if (input) {
+                    buildings[building] = parseFloat(input.value) || 0;
+                }
+            });
+            
+            const dataToSave = {
+                projectSummary: summary,
+                ragStatus: rag,
+                physicalProgress: buildings,
+                lastUpdated: new Date().toISOString().split('T')[0],
+                updatedBy: 'Admin'
+            };
+            
+            localStorage.setItem('dashboardData', JSON.stringify(dataToSave));
+            currentData = dataToSave;
+            
+            showStatus('Data saved successfully!', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         }
+        
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + type;
+            statusEl.style.display = 'block';
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 4000);
+        }
+        
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                loadData();
+                showAdminPanel();
+            }
+        });
     </script>
 </body>
 </html>
