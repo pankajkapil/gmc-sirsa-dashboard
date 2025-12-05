@@ -1,0 +1,53 @@
+{
+  "projectSummary": {
+    "physicalProgress": 26.87,
+    "financialProgress": 32.15,
+    "fundsReleased": "₹45.82 Cr",
+    "fundingGap": "₹3.24 Cr"
+  },
+  "ragStatus": {
+    "quality": "GREEN",
+    "timeline": "GREEN",
+    "cost": "GREEN",
+    "safety": "GREEN"
+  },
+  "physicalProgress": {
+    "MainBuilding": 32,
+    "ClassroomBlock": 28,
+    "LaboratoryBuilding": 22,
+    "LibraryBlock": 18,
+    "HostelBlock": 25,
+    "AdminBlock": 30,
+    "AuditoriumComplex": 20,
+    "StorageWarehousing": 35,
+    "UPS_DG_Infrastructure": 40,
+    "RoofTopSolarSystem": 15,
+    "CampusRoads_Landscaping": 28
+  },
+  "financialStatus": {
+    "totalContractValue": 49.06,
+    "released": 45.82,
+    "pendingRelease": 3.24,
+    "utilization": 44.56
+  },
+  "qualityAssurance": [
+    {"material": "Cement", "samples": 45, "passed": 44, "percentage": 97.8},
+    {"material": "Steel", "samples": 38, "passed": 38, "percentage": 100},
+    {"material": "Concrete", "samples": 52, "passed": 50, "percentage": 96.2}
+  ],
+  "timeline": [
+    {"milestone": "Foundation Complete", "planned": "2024-03-31", "actual": "2024-03-28", "status": "Completed"},
+    {"milestone": "Structural Work 50%", "planned": "2024-09-30", "actual": "2024-10-15", "status": "In Progress"},
+    {"milestone": "Finishing Work Start", "planned": "2025-03-31", "actual": null, "status": "Pending"}
+  ],
+  "safetyKPIs": {
+    "totalWorkingDays": 285,
+    "lostTimeInjuries": 0,
+    "nearMisses": 3,
+    "safetyAuditsDone": 12,
+    "ltifr": 0
+  },
+  "photoGallery": {
+    "november2025": []
+  }
+}
