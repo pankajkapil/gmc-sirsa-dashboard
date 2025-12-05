@@ -220,47 +220,56 @@
         }
         
         function handleSave() {
-            const summary = {
-                projectName: 'GMC Sirsa Medical College Construction',
-                totalProjectCost: document.getElementById('totalProjectCost').value,
-                physicalProgress: parseFloat(document.getElementById('physicalProgress').value) || 0,
-                financialProgress: parseFloat(document.getElementById('financialProgress').value) || 0,
-                totalFundsReleased: document.getElementById('totalFundsReleased').value,
-                financialProgressAmount: document.getElementById('financialProgressAmount').value,
-                fundingGap: document.getElementById('fundingGap').value
-            };
-            
-            const rag = {
-                quality: document.getElementById('ragQuality').value,
-                timeline: document.getElementById('ragTimeline').value,
-                cost: document.getElementById('ragCost').value,
-                safety: document.getElementById('ragSafety').value
-            };
-            
-            const buildings = {};
-            BUILDINGS.forEach(building => {
-                const input = document.querySelector(`[data-building="${building}"]`);
-                if (input) {
-                    buildings[building] = parseFloat(input.value) || 0;
-                }
-            });
-            
-            const dataToSave = {
-                projectSummary: summary,
-                ragStatus: rag,
-                physicalProgress: buildings,
-                lastUpdated: new Date().toISOString().split('T')[0],
-                updatedBy: 'Admin'
-            };
-            
-            localStorage.setItem('dashboardData', JSON.stringify(dataToSave));
-            currentData = dataToSave;
-            
-            showStatus('Data saved successfully!', 'success');
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        }
+// Load existing data from localStorage
+    const existingData = JSON.parse(localStorage.getItem('dashboardData')) || {};
+    const existingProjectSummary = existingData.projectSummary || {};
+    const existingRagStatus = existingData.ragStatus || {};
+    
+    // Get building progress from form
+    const buildings = {};
+    BUILDINGS.forEach(building => {
+      const input = document.querySelector(`[data-building="${building}"]`);
+      if (input) {
+        buildings[building] = parseFloat(input.value) || 0;
+      }
+    });
+    
+    // Update summary ONLY if values are provided in the form (not empty)
+    const summary = {
+      projectName: 'GMC Sirsa Medical College Construction',
+      totalProjectCost: document.getElementById('totalProjectCost').value || existingProjectSummary.totalProjectCost || '',
+      physicalProgress: parseFloat(document.getElementById('physicalProgress').value) || existingProjectSummary.physicalProgress || 0,
+      financialProgress: parseFloat(document.getElementById('financialProgress').value) || existingProjectSummary.financialProgress || 0,
+      totalFundsReleased: document.getElementById('totalFundsReleased').value || existingProjectSummary.totalFundsReleased || '',
+      financialProgressAmount: document.getElementById('financialProgressAmount').value || existingProjectSummary.financialProgressAmount || '',
+      fundingGap: document.getElementById('fundingGap').value || existingProjectSummary.fundingGap || ''
+    };
+    
+    // Get RAG Status
+    const rag = {
+      quality: document.getElementById('ragQuality').value,
+      timeline: document.getElementById('ragTimeline').value,
+      cost: document.getElementById('ragCost').value,
+      safety: document.getElementById('ragSafety').value
+    };
+    
+    // Create consolidated data object
+    const dataToSave = {
+      projectSummary: summary,
+      ragStatus: rag,
+      physicalProgress: buildings,
+      lastUpdated: new Date().toISOString().split('T')[0],
+      updatedBy: 'Admin'
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('dashboardData', JSON.stringify(dataToSave));
+    currentData = dataToSave;
+    
+    showStatus('Data saved successfully!', 'success');
+    setTimeout(() => {
+      location.reload();
+    }, 1500);        }
         
         function showStatus(message, type) {
             const statusEl = document.getElementById('status-message');
