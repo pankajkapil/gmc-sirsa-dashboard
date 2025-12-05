@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMC Sirsa Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        header { background: #003d82; color: white; padding: 25px; text-align: center; }
+        h1 { margin-bottom: 10px; font-size: 2em; }
+        .content { padding: 25px; }
+        section { margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #667eea; }
+        h2 { color: #003d82; margin-bottom: 15px; font-size: 1.3em; }
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; }
+        .kpi-card { background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+        .kpi-value { font-size: 2em; font-weight: bold; color: #003d82; margin: 10px 0; }
+        .badge { display: inline-block; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin: 5px; }
+        .badge-green { background: #28a745; color: white; }
+        .badge-amber { background: #ffc107; color: black; }
+        .badge-red { background: #dc3545; color: white; }
+        table { width: 100%; border-collapse: collapse; background: white; margin: 15px 0; }
+        th { background: #003d82; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #e0e0e0; }
+        li { margin: 8px 0; line-height: 1.6; }
+        .upload-area { background: #fff3cd; border: 2px dashed #ff9800; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; }
+        .upload-btn { background: #ff9800; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 10px; }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin: 15px 0; }
+        .photo-card { background: #e8e8e8; border: 2px solid #ddd; border-radius: 6px; padding: 10px; min-height: 150px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 GMC Sirsa Project Management Dashboard</h1>
+            <p><strong>Tender Clause 2.5(xii)</strong> - Customized Dashboard for DMER</p>
+        </header>
+        <div class="content">
+            <section>
+                <h2>📊 Project Summary</h2>
+                <p style="margin-bottom: 15px;"><strong>Project:</strong> 500-bed Medical College Complex with Hospital, Training Centre & Residential Facilities</p>
+                <div class="kpi-container">
+                    <div class="kpi-card">
+                        <div>Physical Progress (Nov 2025)</div>
+                        <div class="kpi-value">26.87%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div>Financial Progress</div>
+                        <div class="kpi-value">24.26%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div>Funds Released</div>
+                        <div class="kpi-value">₹134.90 Cr</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div>Funding Gap</div>
+                        <div class="kpi-value">₹66.94 Cr</div>
+                    </div>
+                </div>
+                <h3 style="color: #003d82; margin-top: 20px;">Status (RAG)</h3>
+                <div style="margin-top: 10px;">
+                    <span class="badge badge-green">✓ Quality: GREEN</span>
+                    <span class="badge badge-amber">⚠ Time: AMBER</span>
+                    <span class="badge badge-red">✕ Cost: RED</span>
+                    <span class="badge badge-green">✓ Safety: GREEN</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>🏗️ Physical Progress (Nov 2025)</h2>
+                <ul>
+                    <li><strong>Hospital Building (BG7):</strong> 5th Floor RCC in progress (8 floors total)</li>
+                    <li><strong>Medical College (BG5):</strong> 4th Floor RCC in progress (6 floors total)</li>
+                    <li><strong>Paramedical College (BG6):</strong> 6th Floor RCC in progress (7 floors total)</li>
+                    <li><strong>Girls Hostel (G6):</strong> 3rd Floor slab RCC in progress (7 floors total)</li>
+                    <li><strong>Nursing Girls Hostel (G8):</strong> 1st Floor RCC (Foundation completed)</li>
+                    <li><strong>Boys Hostel (G8):</strong> Ground Floor RCC (Foundation completed)</li>
+                    <li><strong>JR/SR Residence (S12):</strong> Ground Floor RCC in progress (13 floors total)</li>
+                    <li><strong>Director & MS Residence (G1):</strong> Terrace Floor RCC in progress</li>
+                    <li><strong>ESS (G):</strong> RCC structure completed</li>
+                    <li><strong>Vishram Sarai (G2):</strong> 1st Floor work in progress (3 floors total)</li>
+                    <li><strong>Boundary Wall:</strong> Foundation work 40% completed</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>💰 Financial Status</h2>
+                <table>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount (₹ Cr)</th>
+                        <th>% of Total</th>
+                    </tr>
+                    <tr>
+                        <td>EPC Tender Cost</td>
+                        <td>832.00</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr>
+                        <td>Total Financial Progress</td>
+                        <td>201.84</td>
+                        <td>24.26%</td>
+                    </tr>
+                    <tr>
+                        <td>Funds Received from DMER</td>
+                        <td>134.90</td>
+                        <td>16.21%</td>
+                    </tr>
+                    <tr>
+                        <td>Funding Gap (Shortfall)</td>
+                        <td>66.94</td>
+                        <td>8.05%</td>
+                    </tr>
+                    <tr>
+                        <td>RA Bills Paid up to RA-07</td>
+                        <td>169.34</td>
+                        <td>20.35%</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section>
+                <h2>✅ Quality Assurance (Material Testing)</h2>
+                <table>
+                    <tr>
+                        <th>Test Type</th>
+                        <th>Tests Conducted</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Aggregate Test</td>
+                        <td>45</td>
+                        <td>All Passed ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Cement Test</td>
+                        <td>38</td>
+                        <td>All Passed ✓</td>
+                    </tr>
+                    <tr>
+                        <td>TMT Bar Test</td>
+                        <td>52</td>
+                        <td>All Passed ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Concrete Compression Test</td>
+                        <td>31</td>
+                        <td>All Passed ✓</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section>
+                <h2>📸 Monthly Progress Photos</h2>
+                <div class="upload-area">
+                    <h3>📁 Upload Progress Photos</h3>
+                    <p style="margin: 10px 0;">Use this section to add construction progress photos monthly</p>
+                    <button class="upload-btn">🖼️ Add Photos</button>
+                </div>
+                <h3 style="margin-top: 20px; color: #003d82;">November 2025 Photos</h3>
+                <div class="photo-grid">
+                    <div class="photo-card">
+                        <p>📷 Photo 1</p>
+                        <p style="font-size: 0.8em; color: #666;">Nov 2025</p>
+                    </div>
+                    <div class="photo-card">
+                        <p>📷 Photo 2</p>
+                        <p style="font-size: 0.8em; color: #666;">Nov 2025</p>
+                    </div>
+                    <div class="photo-card">
+                        <p>📷 Photo 3</p>
+                        <p style="font-size: 0.8em; color: #666;">Nov 2025</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>⏰ Project Timeline</h2>
+                <table>
+                    <tr>
+                        <th>Milestone</th>
+                        <th>Planned Date</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Foundation Completion (All Buildings)</td>
+                        <td>June 2024</td>
+                        <td>✓ Completed</td>
+                    </tr>
+                    <tr>
+                        <td>Structural Work (70% Progress)</td>
+                        <td>June 2025</td>
+                        <td>⚠ In Progress (26.87%)</td>
+                    </tr>
+                    <tr>
+                        <td>Finishing & MEP Work</td>
+                        <td>December 2025</td>
+                        <td>Pending</td>
+                    </tr>
+                    <tr>
+                        <td>Handover & Commissioning</td>
+                        <td>June 2026</td>
+                        <td>Pending</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section>
+                <h2>🛡️ Safety Performance</h2>
+                <table>
+                    <tr>
+                        <th>Safety Metric</th>
+                        <th>Target</th>
+                        <th>Current</th>
+                    </tr>
+                    <tr>
+                        <td>Lost Time Injury Frequency Rate (LTIFR)</td>
+                        <td>0.5</td>
+                        <td>0.0 ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Total Recordable Incident Rate (TRIR)</td>
+                        <td>1.0</td>
+                        <td>0.8 ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Workers with Safety Training (%)</td>
+                        <td>100%</td>
+                        <td>100% ✓</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section style="background: #e3f2fd; border-left-color: #2196F3;">
+                <h2>📝 Last Updated</h2>
+                <p><strong>Report Date:</strong> November 2025</p>
+                <p><strong>For:</strong> Department of Medical Education & Research (DMER), Haryana</p>
+                <p><strong>Executing Agency:</strong> HITES India Pvt. Ltd.</p>
+            </section>
+        </div>
+    </div>
+</body>
+</html>
