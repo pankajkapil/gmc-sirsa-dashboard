@@ -93,7 +93,13 @@ const month = document.getElementById('photoMonth').value;
 const files = document.getElementById('photoUpload').files;
 if (!files.length) { alert('Select photos'); return; }
 let saved = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
-if (!saved[month]) saved[month] = [];
+
+  // Convert string to array (for backward compatibility)
+if (saved[month] && !Array.isArray(saved[month])) {
+  saved[month] = [saved[month]];
+} else if (!saved[month]) {
+    saved[month] = [];
+}
 let count = 0;
 for (let file of files) {
 const reader = new FileReader();
