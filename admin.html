@@ -113,7 +113,33 @@
             
             <h2 style="color: #333; margin-top: 30px; margin-bottom: 15px;">Physical Progress by Building</h2>
             <div id="buildings-container"></div>
-            
+
+
+                            <h2 style="color: #333; margin-top: 30px; margin-bottom: 15px;">Monthly Photo Upload</h2>
+                <div style="background: #f9f9f9; padding: 20px; margin-top: 20px; border-radius: 4px;">
+                    <div class="form-group">
+                        <label>Select Month:</label>
+                        <select id="photoMonth" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>November</option>
+                            <option>December</option>
+                            <option>January</option>
+                            <option>February</option>
+                            <option>March</option>
+                            <option>April</option>
+                            <option>May</option>
+                            <option>June</option>
+                            <option>July</option>
+                            <option>August</option>
+                            <option>September</option>
+                            <option>October</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Photo:</label>
+                        <input type="file" id="photoUpload" accept="image/*" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <button onclick="uploadMonthlyPhoto()" style="padding: 12px 30px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Upload Photo</button>
+                </div>
             <button class="save-btn" onclick="handleSave()" style="margin-top: 30px; margin-bottom: 30px;">Save All Changes</button>
         </div>
     </div>
@@ -122,218 +148,4 @@
         const ADMIN_PASSWORD = 'admin';
           
      <div style="background: #f9f9f9; padding: 20px; margin-top: 20px; border-radius: 4px;">
-     <h3>Monthly Photo Upload</h3>
-     <div class="form-group">
-     <label>Select Month:</label>
-     <select id="photoMonth" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-     <option>November</option><option>December</option><option>January</option><option>February</option>
-     <option>March</option><option>April</option><option>May</option><option>June</option>
-     <option>July</option><option>August</option><option>September</option><option>October</option>
-     </select>
-     </div>
-     <div class="form-group">
-     <label>Upload Photo:</label>
-     <input type="file" id="photoUpload" accept="image/*" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-     </div>
-     <button onclick="uploadMonthlyPhoto()" style="padding: 12px 30px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Upload Photo</button>
-     </div>
-
-        const DATA_URL = 'https://raw.githubusercontent.com/pankajkapil/gmc-sirsa-dashboard/main/data.json';
-        let currentData = null;
-        
-        // Buildings list with correct names
-        const BUILDINGS = [
-            'External Development/Road',
-            'Junior & Senior Resident (S+12)',
-            'Boys Hostel (G+8)',
-            'Nursing Girls Hostel (G+8)',
-            'Girls Hostel (G+6)',
-            'Hospital Block (B+G+7)',
-            'Service Block',
-            'Vishram Sarai (G+2)',
-            'Medical College (B+G+5)',
-            'Director & MS Residence (G+1)',
-            'Paramedical Block (B+G+6)',
-            'Common Basement'
-        ];
-        
-        function login() {
-            const password = document.getElementById('password').value;
-            if (password === ADMIN_PASSWORD) {
-                localStorage.setItem('adminLoggedIn', 'true');
-                loadData();
-                showAdminPanel();
-            } else {
-                alert('Invalid password!');
-            }
-        }
-        
-        function logout() {
-            localStorage.removeItem('adminLoggedIn');
-            document.getElementById('login-page').style.display = 'block';
-            document.getElementById('admin-page').style.display = 'none';
-            document.getElementById('password').value = '';
-        }
-        
-        function showAdminPanel() {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('admin-page').style.display = 'block';
-            renderBuildingFields();
-        }
-        
-        function renderBuildingFields() {
-            const container = document.getElementById('buildings-container');
-            container.innerHTML = '';
-            BUILDINGS.forEach(building => {
-                const section = document.createElement('div');
-                section.className = 'building-section';
-                section.innerHTML = `
-                    <h3>${building}</h3>
-                    <div class="form-group">
-                        <label>Progress (%):</label>
-                        <input type="number" class="building-progress" data-building="${building}" placeholder="0-100">
-                    </div>
-                `;
-                container.appendChild(section);
-            });
-        }
-        
-        function loadData() {
-            try {
-                const savedData = localStorage.getItem('dashboardData');
-                if (savedData) {
-                    currentData = JSON.parse(savedData);
-                    populateFields();
-                }
-            } catch (e) {
-                console.error('Error loading data:', e);
-            }
-        }
-        
-        function populateFields() {
-            if (!currentData) return;
-            
-            const summary = currentData.projectSummary || {};
-            const rag = currentData.ragStatus || {};
-            const buildings = currentData.physicalProgress || {};
-            
-            document.getElementById('totalProjectCost').value = summary.totalProjectCost || '';
-            document.getElementById('financialProgressAmount').value = summary.financialProgressAmount || '';
-            document.getElementById('totalFundsReleased').value = summary.totalFundsReleased || '';
-            document.getElementById('fundingGap').value = summary.fundingGap || '';
-            document.getElementById('physicalProgress').value = summary.physicalProgress || '';
-            document.getElementById('financialProgress').value = summary.financialProgress || '';
-            
-            document.getElementById('ragQuality').value = rag.quality || 'GREEN';
-            document.getElementById('ragTimeline').value = rag.timeline || 'GREEN';
-            document.getElementById('ragCost').value = rag.cost || 'GREEN';
-            document.getElementById('ragSafety').value = rag.safety || 'GREEN';
-            
-            BUILDINGS.forEach(building => {
-                const input = document.querySelector(`[data-building="${building}"]`);
-                if (input) {
-                    input.value = buildings[building] || '';
-                }
-            });
-        }
-        
-        function handleSave() {
-// Load existing data from localStorage
-    const existingData = JSON.parse(localStorage.getItem('dashboardData')) || {};
-    const existingProjectSummary = existingData.projectSummary || {};
-    const existingRagStatus = existingData.ragStatus || {};
-    
-    // Get building progress from form
-const existingBuildings = existingData.physicalProgress || {}; const buildings = { ...existingBuildings };
-    BUILDINGS.forEach(building => {
-      const input = document.querySelector(`[data-building="${building}"]`);
-      if (input) {
-buildings[building] = parseFloat(input.value) || existingBuildings[building] || 0;      }
-    });
-    
-    // Update summary ONLY if values are provided in the form (not empty)
-    const summary = {
-      projectName: 'GMC Sirsa Medical College Construction',
-      totalProjectCost: document.getElementById('totalProjectCost').value || existingProjectSummary.totalProjectCost || '',
-      physicalProgress: parseFloat(document.getElementById('physicalProgress').value) || existingProjectSummary.physicalProgress || 0,
-      financialProgress: parseFloat(document.getElementById('financialProgress').value) || existingProjectSummary.financialProgress || 0,
-      totalFundsReleased: document.getElementById('totalFundsReleased').value || existingProjectSummary.totalFundsReleased || '',
-      financialProgressAmount: document.getElementById('financialProgressAmount').value || existingProjectSummary.financialProgressAmount || '',
-      fundingGap: document.getElementById('fundingGap').value || existingProjectSummary.fundingGap || ''
-    };
-    
-    // Get RAG Status
-    const rag = {
-      quality: document.getElementById('ragQuality').value,
-      timeline: document.getElementById('ragTimeline').value,
-      cost: document.getElementById('ragCost').value,
-      safety: document.getElementById('ragSafety').value
-    };
-    
-    // Create consolidated data object
-    const dataToSave = {
-      projectSummary: summary,
-      ragStatus: rag,
-      physicalProgress: buildings,
-      lastUpdated: new Date().toISOString().split('T')[0],
-      updatedBy: 'Admin'
-    };
-    
-    // Save to localStorage
-    localStorage.setItem('dashboardData', JSON.stringify(dataToSave));
-    currentData = dataToSave;
-    
-    showStatus('Data saved successfully!', 'success');
-    setTimeout(() => {
-      location.reload();
-    }, 1500);        }
-        
-        function showStatus(message, type) {
-            const statusEl = document.getElementById('status-message');
-            statusEl.textContent = message;
-            statusEl.className = 'status-message ' + type;
-            statusEl.style.display = 'block';
-            setTimeout(() => {
-                statusEl.style.display = 'none';
-            }, 4000);
-        }
-
-        
-// Monthly Photo Upload Function
-function uploadMonthlyPhoto() {
-    const month = document.getElementById('photoMonth').value;
-    const photoInput = document.getElementById('photoUpload');
-
-    if (!photoInput.files || photoInput.files.length === 0) {
-        alert('Please select a photo');
-        return;
-    }
-
-    const file = photoInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const photoData = e.target.result;
-        const savedPhotos = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
-        savedPhotos[month] = photoData;
-        localStorage.setItem('monthlyPhotos', JSON.stringify(savedPhotos));
-        alert('Photo uploaded for ' + month + '!');
-        photoInput.value = '';
-    };
-
-    reader.readAsDataURL(file);
-}
-
-        
-        // Check if already logged in
-        window.addEventListener('load', () => {
-            if (localStorage.getItem('adminLoggedIn') === 'true') {
-                loadData();
-                showAdminPanel();
-            }
-            });
-         
-
-    </script>
-</body>
-</html>
+     
