@@ -297,6 +297,33 @@ buildings[building] = parseFloat(input.value) || existingBuildings[building] || 
                 statusEl.style.display = 'none';
             }, 4000);
         }
+
+        
+// Monthly Photo Upload Function
+function uploadMonthlyPhoto() {
+    const month = document.getElementById('photoMonth').value;
+    const photoInput = document.getElementById('photoUpload');
+
+    if (!photoInput.files || photoInput.files.length === 0) {
+        alert('Please select a photo');
+        return;
+    }
+
+    const file = photoInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const photoData = e.target.result;
+        const savedPhotos = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
+        savedPhotos[month] = photoData;
+        localStorage.setItem('monthlyPhotos', JSON.stringify(savedPhotos));
+        alert('Photo uploaded for ' + month + '!');
+        photoInput.value = '';
+    };
+
+    reader.readAsDataURL(file);
+}
+
         
         // Check if already logged in
         window.addEventListener('load', () => {
@@ -304,32 +331,9 @@ buildings[building] = parseFloat(input.value) || existingBuildings[building] || 
                 loadData();
                 showAdminPanel();
             }
+            });
          
- // Monthly Photo Upload Function
- function uploadMonthlyPhoto() {
-   const month = document.getElementById('photoMonth').value;
-   const photoInput = document.getElementById('photoUpload');
-   
-   if (!photoInput.files || photoInput.files.length === 0) {
-     alert('Please select a photo');
-     return;
-   }
-   
-   const file = photoInput.files[0];
-   const reader = new FileReader();
-   
-   reader.onload = function(e) {
-     const photoData = e.target.result;
-     const savedPhotos = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
-     savedPhotos[month] = photoData;
-     localStorage.setItem('monthlyPhotos', JSON.stringify(savedPhotos));
-     alert(`Photo uploaded for ${month}!`);
-     photoInput.value = '';
-   };
-   
-   reader.readAsDataURL(file);
- }
-        });
+
     </script>
 </body>
 </html>
