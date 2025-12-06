@@ -259,7 +259,7 @@
    MONTHS.forEach((month, index) => {
      const photoDiv = document.createElement('div');
      photoDiv.className = 'photo-month';
-             const photoUrl = savedPhotos[month] ? `data:image/jpeg;base64,${savedPhotos[month]}` : '';
+                     const photoUrl = savedPhotos[month] || '';
         const photoImg = savedPhotos[month] ? `<img src="${photoUrl}" alt="${month}">` : '<img src="https://via.placeholder.com/150x120?text=No+Photo" alt="No Photo">';
         photoDiv.innerHTML = `<h4>${month}</h4>${photoImg}<p>${savedPhotos[month] ? 'Uploaded' : 'No photo'}</p>`;
           container.appendChild(photoDiv);
