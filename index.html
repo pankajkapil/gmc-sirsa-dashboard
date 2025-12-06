@@ -247,8 +247,7 @@
         window.addEventListener('load', loadData);
         
         // Auto-refresh every 5 seconds
-        setInterval(loadData, 5000);
-         
+        setInterval(() => { loadData(); renderMonthlyPhotos(); }, 5000);         
  // Monthly Photos Management
  const MONTHS = ['November', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'];
  
@@ -260,10 +259,10 @@
    MONTHS.forEach((month, index) => {
      const photoDiv = document.createElement('div');
      photoDiv.className = 'photo-month';
-     const photoUrl = savedPhotos[month] ? `data:image/jpeg;base64,${savedPhotos[month].substring(0, 100)}...` : '';
-     const photoImg = savedPhotos[month] ? `<img src="${photoUrl}" alt="${month}">` : '<img src="https://via.placeholder.com/150x120?text=No+Photo" alt="No Photo">';
-     photoDiv.innerHTML = `<h4>${month}</h4>${photoImg}<p>${savedPhotos[month] ? 'Uploaded' : 'No photo'}</p>`;
-     container.appendChild(photoDiv);
+             const photoUrl = savedPhotos[month] ? `data:image/jpeg;base64,${savedPhotos[month]}` : '';
+        const photoImg = savedPhotos[month] ? `<img src="${photoUrl}" alt="${month}">` : '<img src="https://via.placeholder.com/150x120?text=No+Photo" alt="No Photo">';
+        photoDiv.innerHTML = `<h4>${month}</h4>${photoImg}<p>${savedPhotos[month] ? 'Uploaded' : 'No photo'}</p>`;
+          container.appendChild(photoDiv);
    });
  }
  
