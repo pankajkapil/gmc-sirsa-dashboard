@@ -273,3 +273,56 @@
                 timeline: document.getElementById('ragTimeline').value,
                 cost: document.getElementById('ragCost').value,
                 safety: document.getElementById('ragS
+afety'}
+            };
+            const dataToSave = {
+                projectSummary: summary,
+                ragStatus: rag,
+                physicalProgress: buildings,
+                lastUpdated: new Date().toISOString().split('T')[0],
+                updatedBy: 'Admin'
+            };
+            localStorage.setItem('dashboardData', JSON.stringify(dataToSave));
+            currentData = dataToSave;
+            showStatus('Data saved successfully!', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + type;
+            statusEl.style.display = 'block';
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 4000);
+        }
+        function uploadMonthlyPhoto() {
+            const month = document.getElementById('photoMonth').value;
+            const photoInput = document.getElementById('photoUpload');
+            if (!photoInput.files || photoInput.files.length === 0) {
+                alert('Please select a photo');
+                return;
+            }
+            const file = photoInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photoData = e.target.result;
+                const savedPhotos = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
+                savedPhotos[month] = photoData;
+                localStorage.setItem('monthlyPhotos', JSON.stringify(savedPhotos));
+                alert('Photo uploaded for ' + month + '!');
+                photoInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                loadData();
+                showAdminPanel();
+            }
+        });
+    </script>
+</body>
+</html>
