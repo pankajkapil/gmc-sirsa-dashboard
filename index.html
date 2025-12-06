@@ -35,6 +35,11 @@
         .financial-table th { background: #003d82; color: white; padding: 12px; text-align: left; }
         .financial-table td { padding: 12px; border-bottom: 1px solid #ddd; }
         .financial-table tr:hover { background: #f9f9f9; }
+             .monthly-photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+     .photo-month { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+     .photo-month h4 { color: #003d82; font-size: 14px; margin: 10px 0 5px 0; }
+     .photo-month img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; }
+     .photo-month p { color: #999; font-size: 12px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -119,6 +124,11 @@
             <h2>Physical Progress by Building (12 Buildings)</h2>
             <div class="building-grid" id="buildingsContainer"></div>
         </div>
+             <div class="section">
+     <h2>Monthly Progress Photos (12 Months)</h2>
+     <div class="monthly-photos" id="monthlyPhotosContainer"></div>
+     </div>
+
         
         <div class="refresh-time">
             <p>Last Updated: <span id="lastUpdated">Loading...</span> | Auto-refresh every 5 seconds</p>
@@ -238,6 +248,27 @@
         
         // Auto-refresh every 5 seconds
         setInterval(loadData, 5000);
+         
+ // Monthly Photos Management
+ const MONTHS = ['November', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'];
+ 
+ function renderMonthlyPhotos() {
+   const container = document.getElementById('monthlyPhotosContainer');
+   const savedPhotos = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
+   container.innerHTML = '';
+   
+   MONTHS.forEach((month, index) => {
+     const photoDiv = document.createElement('div');
+     photoDiv.className = 'photo-month';
+     const photoUrl = savedPhotos[month] ? `data:image/jpeg;base64,${savedPhotos[month].substring(0, 100)}...` : '';
+     const photoImg = savedPhotos[month] ? `<img src="${photoUrl}" alt="${month}">` : '<img src="https://via.placeholder.com/150x120?text=No+Photo" alt="No Photo">';
+     photoDiv.innerHTML = `<h4>${month}</h4>${photoImg}<p>${savedPhotos[month] ? 'Uploaded' : 'No photo'}</p>`;
+     container.appendChild(photoDiv);
+   });
+ }
+ 
+ // Load photos on page load and on each refresh
+ window.addEventListener('load', renderMonthlyPhotos);
     </script>
 </body>
 </html>
