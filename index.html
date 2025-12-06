@@ -285,6 +285,24 @@ function renderMonthlyPhotos() {
  
  // Load photos on page load and on each refresh
  window.addEventListener('load', renderMonthlyPhotos);
+        
+// Migrate legacy single-photo data to array format
+function migratePhotosData() {
+    const saved = JSON.parse(localStorage.getItem('monthlyPhotos')) || {};
+    let modified = false;
+    for (let month in saved) {
+        if (saved[month] && !Array.isArray(saved[month]) && typeof saved[month] === 'string') {
+            saved[month] = [saved[month]];  // Convert string to array
+            modified = true;
+        }
+    }
+    if (modified) {
+        localStorage.setItem('monthlyPhotos', JSON.stringify(saved));
+    }
+}
+
+// Run migration on page load
+window.addEventListener('DOMContentLoaded', migratePhotosData);
     </script>
 </body>
 </html>
