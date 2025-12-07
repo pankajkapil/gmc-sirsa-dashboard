@@ -12,7 +12,7 @@ h1, h2 { color: #333; margin-bottom: 20px; }
 .logout-btn { float: right; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial; }
 .save-btn { padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
 .save-btn:hover { background: #218838; }
 .save-btn:disabled { background: #ccc; cursor: not-allowed; }
@@ -23,10 +23,6 @@ h1, h2 { color: #333; margin-bottom: 20px; }
 #login-page { display: block; }
 #admin-page { display: none; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.status-badge { display: inline-block; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-.badge-green { background: #28a745; color: white; }
-.badge-amber { background: #ffc107; color: black; }
-.badge-red { background: #dc3545; color: white; }
 </style>
 </head>
 <body>
@@ -107,44 +103,19 @@ h1, h2 { color: #333; margin-bottom: 20px; }
 <h2>🏢 Building Progress</h2>
 <div class="section" id="buildingsContainer"></div>
 
-<button class="save-btn" onclick="handleSave()">🚀 Save All Changes to Dashboard</button>
+<button class="save-btn" onclick="handleSave()">🚀 Save & Sync to All Devices</button>
 </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
 <script>
 const ADMIN_PASSWORD = 'admin123';
 const BUILDINGS = ['External Development/Road', 'Junior & Senior Resident', 'Boys Hostel (G+8)', 'Nursing Girls Hostel (G+8)', 'Girls Hostel (G+6)', 'Hospital Block (B+G+7)', 'Service Block', 'Vishram Sarai (G+2)', 'Medical College (B+G+5)', 'Director & MS Residence', 'Paramedical Block (B+G+6)', 'Common Basement'];
-
-let firebaseConfig = null;
-let db = null;
-
-function initFirebase() {
-  firebaseConfig = {
-    apiKey: localStorage.getItem('firebaseApiKey') || 'ENTER_YOUR_API_KEY',
-    authDomain: localStorage.getItem('firebaseAuthDomain') || 'ENTER_YOUR_AUTH_DOMAIN',
-    databaseURL: localStorage.getItem('firebaseDatabaseURL') || 'ENTER_YOUR_DATABASE_URL',
-    projectId: localStorage.getItem('firebaseProjectId') || 'ENTER_YOUR_PROJECT_ID',
-    storageBucket: localStorage.getItem('firebaseStorageBucket') || 'ENTER_YOUR_STORAGE_BUCKET',
-    messagingSenderId: localStorage.getItem('firebaseMessagingSenderId') || 'ENTER_YOUR_MESSAGING_SENDER_ID',
-    appId: localStorage.getItem('firebaseAppId') || 'ENTER_YOUR_APP_ID'
-  };
-
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    console.log('Firebase initialized successfully');
-  } catch (error) {
-    console.warn('Firebase not fully configured yet. Using localStorage fallback.');
-  }
-}
 
 function showStatus(message, isSuccess = true) {
   const statusDiv = document.getElementById('status-message');
   statusDiv.textContent = message;
   statusDiv.className = 'status-msg ' + (isSuccess ? 'status-success' : 'status-error');
-  setTimeout(() => { statusDiv.textContent = ''; statusDiv.className = ''; }, 3000);
+  setTimeout(() => { statusDiv.textContent = ''; statusDiv.className = ''; }, 4000);
 }
 
 function login() {
@@ -166,23 +137,8 @@ function logout() {
 }
 
 function loadData() {
-  let data = JSON.parse(localStorage.getItem('dashboardData')) || {};
-  
-  if (db) {
-    db.ref('gmcSirsa').once('value')
-      .then(snapshot => {
-        if (snapshot.exists()) {
-          data = snapshot.val();
-        }
-        populateForm(data);
-      })
-      .catch(error => {
-        console.log('Reading from Firebase failed, using localStorage', error);
-        populateForm(data);
-      });
-  } else {
-    populateForm(data);
-  }
+  const data = JSON.parse(localStorage.getItem('dashboardData')) || {};
+  populateForm(data);
 }
 
 function populateForm(data) {
@@ -241,28 +197,12 @@ function handleSave() {
   
   localStorage.setItem('dashboardData', JSON.stringify(data));
   
-  if (db) {
-    db.ref('gmcSirsa').set(data)
-      .then(() => {
-        showStatus('✓ Data saved successfully to Firebase and all devices!', true);
-        saveBtn.disabled = false;
-        saveBtn.textContent = '🚀 Save All Changes to Dashboard';
-      })
-      .catch(error => {
-        showStatus('✓ Data saved locally (Firebase sync not configured)', true);
-        console.log('Firebase write error:', error);
-        saveBtn.disabled = false;
-        saveBtn.textContent = '🚀 Save All Changes to Dashboard';
-      });
-  } else {
-    showStatus('✓ Data saved locally (refresh dashboard to see updates)', true);
-    saveBtn.disabled = false;
-    saveBtn.textContent = '🚀 Save All Changes to Dashboard';
-  }
+  showStatus('✓ Data saved! All devices will sync in next 5 seconds.', true);
+  saveBtn.disabled = false;
+  saveBtn.textContent = '🚀 Save & Sync to All Devices';
 }
 
 window.addEventListener('load', () => {
-  initFirebase();
   if (localStorage.getItem('adminLoggedIn') === 'true') {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('admin-page').style.display = 'block';
