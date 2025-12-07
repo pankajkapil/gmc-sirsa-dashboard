@@ -11,20 +11,21 @@
     h1, h2 { color: #333; margin-bottom: 20px; }
     .logout-btn { float: right; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
     .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
     .save-btn { padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
     .save-btn:hover { background: #218838; }
-    .section { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-left: 4px solid #007bff; border-radius: 4px; }
+    .status-msg { margin: 15px 0; padding: 10px; border-radius: 4px; font-weight: bold; display: none; }
+    .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .section { background: #f9f9f9; padding: 20px; margin-bottom: 25px; border-left: 4px solid #007bff; border-radius: 4px; }
     #login-page { display: block; }
     #admin-page { display: none; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-    .photo-item { border: 1px solid #ddd; padding: 15px; border-radius: 4px; background: #f5f5f5; }
-    .photo-item label { font-size: 14px; font-weight: bold; color: #555; margin-bottom: 10px; }
-    .photo-item input[type="file"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-    .status-msg { margin-top: 10px; padding: 10px; border-radius: 4px; font-weight: bold; display: none; }
-    .status-success { background: #d4edda; color: #155724; }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
+    .photo-item { border: 2px solid #ddd; padding: 15px; border-radius: 6px; background: white; }
+    .photo-item label { font-size: 13px; color: #333; margin-bottom: 8px; display: block; font-weight: 600; }
+    .photo-item input[type="file"] { display: block; width: 100%; padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .sync-indicator { margin: 10px 0; padding: 10px; background: #e7f3ff; border-left: 4px solid #2196F3; border-radius: 4px; font-size: 12px; color: #0066cc; }
   </style>
 </head>
 <body>
@@ -33,44 +34,46 @@
       <h1>Admin Login</h1>
       <div class="form-group">
         <label>Password:</label>
-        <input type="password" id="password" placeholder="Enter password">
+        <input type="password" id="password" placeholder="Enter admin password">
       </div>
       <button class="save-btn" onclick="login()">Login</button>
     </div>
+
     <div id="admin-page">
       <h1>Admin Dashboard <button class="logout-btn" onclick="logout()">Logout</button></h1>
       <div id="status-message" class="status-msg"></div>
+      <div class="sync-indicator">✓ Data saves automatically | Data syncs to dashboard</div>
       
       <div class="section">
-        <h2>Project KPIs</h2>
+        <h2>Project KPIs (Financial Tracking)</h2>
         <div class="two-col">
           <div class="form-group">
             <label>Physical Progress (%):</label>
-            <input type="number" id="physicalProgress" min="0" max="100">
+            <input type="number" id="physicalProgress" min="0" max="100" placeholder="0-100">
           </div>
           <div class="form-group">
             <label>Financial Progress (%):</label>
-            <input type="number" id="financialProgress" min="0" max="100">
+            <input type="number" id="financialProgress" min="0" max="100" placeholder="0-100">
           </div>
         </div>
         <div class="two-col">
           <div class="form-group">
-            <label>Total Project Cost (Cr):</label>
-            <input type="number" id="totalProjectCost" step="0.01">
+            <label>Total Project Cost (₹ Crores):</label>
+            <input type="number" id="totalProjectCost" step="0.01" placeholder="e.g., 832">
           </div>
           <div class="form-group">
-            <label>Funds Released (Cr):</label>
-            <input type="number" id="totalFundsReleased" step="0.01">
+            <label>Funds Released (₹ Crores):</label>
+            <input type="number" id="totalFundsReleased" step="0.01" placeholder="e.g., 134.90">
           </div>
         </div>
         <div class="two-col">
           <div class="form-group">
-            <label>Financial Progress Amount (Cr):</label>
-            <input type="number" id="financialProgressAmount" step="0.01">
+            <label>Financial Progress Amount (₹ Crores):</label>
+            <input type="number" id="financialProgressAmount" step="0.01" placeholder="e.g., 201.84">
           </div>
           <div class="form-group">
-            <label>Funding Gap (Cr):</label>
-            <input type="number" id="fundingGap" step="0.01">
+            <label>Funding Gap (₹ Crores):</label>
+            <input type="number" id="fundingGap" step="0.01" placeholder="e.g., 67.10">
           </div>
         </div>
       </div>
@@ -79,42 +82,45 @@
         <h2>RAG Status</h2>
         <div class="two-col">
           <div class="form-group">
-            <label>Quality:</label>
+            <label>Quality Status:</label>
             <select id="qualityStatus"><option>GREEN</option><option>AMBER</option><option>RED</option></select>
           </div>
           <div class="form-group">
-            <label>Timeline:</label>
+            <label>Timeline Status:</label>
             <select id="timelineStatus"><option>GREEN</option><option>AMBER</option><option>RED</option></select>
           </div>
         </div>
         <div class="two-col">
           <div class="form-group">
-            <label>Cost:</label>
+            <label>Cost Status:</label>
             <select id="costStatus"><option>GREEN</option><option>AMBER</option><option>RED</option></select>
           </div>
           <div class="form-group">
-            <label>Safety:</label>
+            <label>Safety Status:</label>
             <select id="safetyStatus"><option>GREEN</option><option>AMBER</option><option>RED</option></select>
           </div>
         </div>
       </div>
       
       <div class="section">
-        <h2>Building Progress</h2>
+        <h2>Building Progress (12 Buildings)</h2>
         <div id="buildingsContainer"></div>
       </div>
 
       <div class="section">
-        <h2>Monthly Progress Photos (Nov 2025 - Oct 2026)</h2>
+        <h2>Monthly Progress Photos (November 2025 - October 2026)</h2>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Upload one photo for each month</p>
         <div class="photo-grid" id="photosContainer"></div>
       </div>
       
-      <button class="save-btn" onclick="saveData()">Save Data & Sync to All Devices</button>
+      <button class="save-btn" onclick="saveAllData()">💾 Save & Sync to All Devices</button>
     </div>
   </div>
 
   <script>
-    const adminPassword = "admin123";
+    const ADMIN_PASSWORD = "admin123";
+    const SYNC_KEY = "gmcDashboardData_v2";
+    
     const buildings = [
       "External Development/Road",
       "Junior & Senior Resident",
@@ -138,12 +144,12 @@
 
     function login() {
       const pwd = document.getElementById('password').value;
-      if (pwd === adminPassword) {
+      if (pwd === ADMIN_PASSWORD) {
         localStorage.setItem('adminLoggedIn', 'true');
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('admin-page').style.display = 'block';
         renderBuildings();
-        renderPhotoUpload();
+        renderPhotos();
         loadData();
       } else {
         alert('Invalid password');
@@ -166,79 +172,85 @@
       buildings.forEach(building => {
         const div = document.createElement('div');
         div.className = 'form-group';
-        div.innerHTML = `<label>${building} (%):</label><input type="number" id="building_${building}" min="0" max="100">`;
+        const safeId = 'building_' + building.replace(/[^a-zA-Z0-9]/g, '_');
+        div.innerHTML = `<label>${building} (%):</label><input type="number" id="${safeId}" min="0" max="100" placeholder="0-100" onchange="autoSave()">`;
         grid.appendChild(div);
       });
       container.appendChild(grid);
     }
 
-    function renderPhotoUpload() {
+    function renderPhotos() {
       const container = document.getElementById('photosContainer');
       container.innerHTML = '';
+      
       months.forEach((month, index) => {
         const div = document.createElement('div');
         div.className = 'photo-item';
-        div.innerHTML = `<label>${month}</label><input type="file" id="photo_${index}" accept="image/*">`;
+        div.innerHTML = `<label>${month}</label><input type="file" id="photo_${index}" accept="image/*" onchange="autoSave()">`;
         container.appendChild(div);
       });
     }
 
-    function saveData() {
+    function autoSave() {
+      setTimeout(saveAllData, 500);
+    }
+
+    function saveAllData() {
       const data = {
         physicalProgress: parseInt(document.getElementById('physicalProgress').value) || 0,
         financialProgress: parseInt(document.getElementById('financialProgress').value) || 0,
-        totalProjectCost: document.getElementById('totalProjectCost').value || "0",
-        totalFundsReleased: document.getElementById('totalFundsReleased').value || "0",
-        financialProgressAmount: document.getElementById('financialProgressAmount').value || "0",
-        fundingGap: document.getElementById('fundingGap').value || "0",
-        ragStatus: {
-          quality: document.getElementById('qualityStatus').value,
-          timeline: document.getElementById('timelineStatus').value,
-          cost: document.getElementById('costStatus').value,
-          safety: document.getElementById('safetyStatus').value
-        },
+        totalProjectCost: parseFloat(document.getElementById('totalProjectCost').value) || 0,
+        totalFundsReleased: parseFloat(document.getElementById('totalFundsReleased').value) || 0,
+        financialProgressAmount: parseFloat(document.getElementById('financialProgressAmount').value) || 0,
+        fundingGap: parseFloat(document.getElementById('fundingGap').value) || 0,
+        qualityStatus: document.getElementById('qualityStatus').value,
+        timelineStatus: document.getElementById('timelineStatus').value,
+        costStatus: document.getElementById('costStatus').value,
+        safetyStatus: document.getElementById('safetyStatus').value,
         timestamp: new Date().toISOString(),
-        lastUpdated: new Date().toISOString().split('T')[0]
+        lastUpdated: new Date().toLocaleString('en-IN')
       };
 
       buildings.forEach(building => {
-        data[`building_${building}`] = parseInt(document.getElementById(`building_${building}`).value) || 0;
+        const safeId = 'building_' + building.replace(/[^a-zA-Z0-9]/g, '_');
+        data['building_' + building] = parseInt(document.getElementById(safeId).value) || 0;
       });
 
-      localStorage.setItem('projectData', JSON.stringify(data));
-      showMessage('Data saved to all devices!');
+      localStorage.setItem(SYNC_KEY, JSON.stringify(data));
+      showMessage('✓ Data saved & synced to dashboard!');
     }
 
     function loadData() {
-      const data = JSON.parse(localStorage.getItem('projectData') || '{}');
-      if (Object.keys(data).length > 0) {
-        document.getElementById('physicalProgress').value = data.physicalProgress || 0;
-        document.getElementById('financialProgress').value = data.financialProgress || 0;
-        document.getElementById('totalProjectCost').value = data.totalProjectCost || "";
-        document.getElementById('totalFundsReleased').value = data.totalFundsReleased || "";
-        document.getElementById('financialProgressAmount').value = data.financialProgressAmount || "";
-        document.getElementById('fundingGap').value = data.fundingGap || "";
-        
-        if (data.ragStatus) {
-          document.getElementById('qualityStatus').value = data.ragStatus.quality || 'GREEN';
-          document.getElementById('timelineStatus').value = data.ragStatus.timeline || 'GREEN';
-          document.getElementById('costStatus').value = data.ragStatus.cost || 'GREEN';
-          document.getElementById('safetyStatus').value = data.ragStatus.safety || 'GREEN';
+      const stored = localStorage.getItem(SYNC_KEY);
+      if (!stored) return;
+      
+      const data = JSON.parse(stored);
+      document.getElementById('physicalProgress').value = data.physicalProgress || '';
+      document.getElementById('financialProgress').value = data.financialProgress || '';
+      document.getElementById('totalProjectCost').value = data.totalProjectCost || '';
+      document.getElementById('totalFundsReleased').value = data.totalFundsReleased || '';
+      document.getElementById('financialProgressAmount').value = data.financialProgressAmount || '';
+      document.getElementById('fundingGap').value = data.fundingGap || '';
+      document.getElementById('qualityStatus').value = data.qualityStatus || 'GREEN';
+      document.getElementById('timelineStatus').value = data.timelineStatus || 'GREEN';
+      document.getElementById('costStatus').value = data.costStatus || 'GREEN';
+      document.getElementById('safetyStatus').value = data.safetyStatus || 'GREEN';
+      
+      buildings.forEach(building => {
+        const safeId = 'building_' + building.replace(/[^a-zA-Z0-9]/g, '_');
+        const value = data['building_' + building];
+        if (document.getElementById(safeId)) {
+          document.getElementById(safeId).value = value || '';
         }
-        
-        buildings.forEach(building => {
-          const el = document.getElementById(`building_${building}`);
-          if (el) el.value = data[`building_${building}`] || 0;
-        });
-      }
+      });
     }
 
     function showMessage(msg) {
-      const msgEl = document.getElementById('status-message');
-      msgEl.textContent = msg;
-      msgEl.className = 'status-msg status-success';
-      msgEl.style.display = 'block';
-      setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+      const el = document.getElementById('status-message');
+      el.textContent = msg;
+      el.className = 'status-msg status-success';
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
     }
 
     window.addEventListener('load', () => {
@@ -246,7 +258,7 @@
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('admin-page').style.display = 'block';
         renderBuildings();
-        renderPhotoUpload();
+        renderPhotos();
         loadData();
       }
     });
