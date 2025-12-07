@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width">
   <title>GMC Sirsa - Admin</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial; background: #f0f0f0; }
@@ -25,9 +23,6 @@
     #login-page { display: block; }
     #admin-page { display: none; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .connection-status { position: fixed; top: 10px; right: 10px; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
-    .status-online { background: #d4edda; color: #155724; }
-    .status-offline { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
@@ -43,7 +38,6 @@
 
     <div id="admin-page">
       <h1>Admin Dashboard <button class="logout-btn" onclick="logout()">Logout</button></h1>
-      <div class="connection-status" id="connectionStatus">Initializing...</div>
       <div id="status-message" class="status-msg" style="display:none;"></div>
       
       <div class="section">
@@ -115,29 +109,13 @@
         <div id="buildingsContainer"></div>
       </div>
 
-      <button class="save-btn" onclick="manualSync()">🚀 Save & Sync to All Devices</button>
+      <button class="save-btn" onclick="manualSync()">Save Data</button>
     </div>
   </div>
 
   <script>
-    // Firebase Configuration - UPDATE WITH YOUR FIREBASE CONFIG
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      databaseURL: "YOUR_DATABASE_URL",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
     const adminPassword = "admin123";
-    let isOnline = false;
 
-    // Building list
     const buildings = [
       "External Development/Road",
       "Junior & Senior Resident",
@@ -152,24 +130,6 @@
       "Paramedical Block (B+G+6)",
       "Common Basement"
     ];
-
-    // Check Firebase connection
-    const connectedRef = db.ref('.info/connected');
-    connectedRef.on('value', (snapshot) => {
-      isOnline = snapshot.val();
-      updateConnectionStatus();
-    });
-
-    function updateConnectionStatus() {
-      const statusEl = document.getElementById('connectionStatus');
-      if (isOnline) {
-        statusEl.textContent = '✅ Online';
-        statusEl.className = 'connection-status status-online';
-      } else {
-        statusEl.textContent = '⚠️ Offline';
-        statusEl.className = 'connection-status status-offline';
-      }
-    }
 
     function login() {
       const pwd = document.getElementById('password').value;
@@ -210,11 +170,6 @@
     }
 
     function saveData() {
-      if (!isOnline) {
-        alert('No internet connection. Data will sync when online.');
-        return;
-      }
-
       const data = {
         physicalProgress: parseInt(document.getElementById('physicalProgress').value) || 0,
         financialProgress: parseInt(document.getElementById('financialProgress').value) || 0,
@@ -227,50 +182,35 @@
         timestamp: new Date().toISOString()
       };
 
-      // Add building data
       buildings.forEach(building => {
         data[`building_${building}`] = parseInt(document.getElementById(`building_${building}`).value) || 0;
       });
 
-      // Save to Firebase
-      db.ref('projectData').set(data).then(() => {
-        showMessage('✅ Data synced to all devices!', 'success');
-        // Also save to localStorage as backup
-        localStorage.setItem('projectData', JSON.stringify(data));
-      }).catch(error => {
-        showMessage('❌ Error syncing: ' + error.message, 'error');
-      });
+      localStorage.setItem('projectData', JSON.stringify(data));
+      showMessage('Data saved successfully!', 'success');
     }
 
     function loadData() {
-      // Try Firebase first
-      db.ref('projectData').on('value', (snapshot) => {
-        let data = snapshot.val();
-        
-        // If no Firebase data, try localStorage
-        if (!data) {
-          const stored = localStorage.getItem('projectData');
-          data = stored ? JSON.parse(stored) : {};
-        }
+      const stored = localStorage.getItem('projectData');
+      const data = stored ? JSON.parse(stored) : {};
 
-        if (data) {
-          document.getElementById('physicalProgress').value = data.physicalProgress || 0;
-          document.getElementById('financialProgress').value = data.financialProgress || 0;
-          document.getElementById('totalCost').value = data.totalCost || 0;
-          document.getElementById('fundsReleased').value = data.fundsReleased || 0;
-          document.getElementById('qualityStatus').value = data.qualityStatus || 'Green';
-          document.getElementById('timelineStatus').value = data.timelineStatus || 'Green';
-          document.getElementById('costStatus').value = data.costStatus || 'Green';
-          document.getElementById('safetyStatus').value = data.safetyStatus || 'Amber';
+      if (data && Object.keys(data).length > 0) {
+        document.getElementById('physicalProgress').value = data.physicalProgress || 0;
+        document.getElementById('financialProgress').value = data.financialProgress || 0;
+        document.getElementById('totalCost').value = data.totalCost || 0;
+        document.getElementById('fundsReleased').value = data.fundsReleased || 0;
+        document.getElementById('qualityStatus').value = data.qualityStatus || 'Green';
+        document.getElementById('timelineStatus').value = data.timelineStatus || 'Green';
+        document.getElementById('costStatus').value = data.costStatus || 'Green';
+        document.getElementById('safetyStatus').value = data.safetyStatus || 'Amber';
 
-          buildings.forEach(building => {
-            const el = document.getElementById(`building_${building}`);
-            if (el) {
-              el.value = data[`building_${building}`] || 0;
-            }
-          });
-        }
-      });
+        buildings.forEach(building => {
+          const el = document.getElementById(`building_${building}`);
+          if (el) {
+            el.value = data[`building_${building}`] || 0;
+          }
+        });
+      }
     }
 
     function manualSync() {
@@ -287,7 +227,6 @@
       }, 3000);
     }
 
-    // Check login status on page load
     window.addEventListener('load', () => {
       if (localStorage.getItem('adminLoggedIn') === 'true') {
         document.getElementById('login-page').style.display = 'none';
