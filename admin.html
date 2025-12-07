@@ -1,221 +1,301 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-<title>GMC Sirsa - Admin</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Arial; background: #f0f0f0; }
-.admin-panel { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-h1, h2 { color: #333; margin-bottom: 20px; }
-.logout-btn { float: right; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial; }
-.save-btn { padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
-.save-btn:hover { background: #218838; }
-.save-btn:disabled { background: #ccc; cursor: not-allowed; }
-.status-msg { margin-top: 10px; padding: 10px; border-radius: 4px; font-weight: bold; }
-.status-success { background: #d4edda; color: #155724; }
-.status-error { background: #f8d7da; color: #721c24; }
-.section { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-left: 4px solid #007bff; border-radius: 4px; }
-#login-page { display: block; }
-#admin-page { display: none; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>GMC Sirsa - Admin</title>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial; background: #f0f0f0; }
+    .admin-panel { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    h1, h2 { color: #333; margin-bottom: 20px; }
+    .logout-btn { float: right; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial; }
+    .save-btn { padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+    .save-btn:hover { background: #218838; }
+    .save-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .status-msg { margin-top: 10px; padding: 10px; border-radius: 4px; font-weight: bold; }
+    .status-success { background: #d4edda; color: #155724; }
+    .status-error { background: #f8d7da; color: #721c24; }
+    .section { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-left: 4px solid #007bff; border-radius: 4px; }
+    #login-page { display: block; }
+    #admin-page { display: none; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .connection-status { position: fixed; top: 10px; right: 10px; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
+    .status-online { background: #d4edda; color: #155724; }
+    .status-offline { background: #f8d7da; color: #721c24; }
+  </style>
 </head>
 <body>
-<div class="admin-panel">
-<div id="login-page">
-<h1>Admin Login</h1>
-<div class="form-group">
-<label>Password:</label>
-<input type="password" id="password" placeholder="Enter password">
-</div>
-<button class="save-btn" onclick="login()">Login</button>
-</div>
+  <div class="admin-panel">
+    <div id="login-page">
+      <h1>Admin Login</h1>
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" id="password" placeholder="Enter password">
+      </div>
+      <button class="save-btn" onclick="login()">Login</button>
+    </div>
 
-<div id="admin-page" style="display: none;">
-<h1>Admin Dashboard <button class="logout-btn" onclick="logout()">Logout</button></h1>
-<div id="status-message"></div>
+    <div id="admin-page">
+      <h1>Admin Dashboard <button class="logout-btn" onclick="logout()">Logout</button></h1>
+      <div class="connection-status" id="connectionStatus">Initializing...</div>
+      <div id="status-message" class="status-msg" style="display:none;"></div>
+      
+      <div class="section">
+        <h2>📊 Project KPIs</h2>
+        <div class="two-col">
+          <div class="form-group">
+            <label>Physical Progress (%):</label>
+            <input type="number" id="physicalProgress" min="0" max="100" onchange="saveData()">
+          </div>
+          <div class="form-group">
+            <label>Financial Progress (%):</label>
+            <input type="number" id="financialProgress" min="0" max="100" onchange="saveData()">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="form-group">
+            <label>Total Project Cost (₹):</label>
+            <input type="number" id="totalCost" onchange="saveData()">
+          </div>
+          <div class="form-group">
+            <label>Funds Released (₹):</label>
+            <input type="number" id="fundsReleased" onchange="saveData()">
+          </div>
+        </div>
+      </div>
 
-<h2>📊 Project KPIs</h2>
-<div class="section">
-<div class="two-col">
-<div class="form-group">
-<label>Physical Progress (%):</label>
-<input type="number" id="physicalProgress" min="0" max="100">
-</div>
-<div class="form-group">
-<label>Financial Progress (%):</label>
-<input type="number" id="financialProgress" min="0" max="100">
-</div>
-<div class="form-group">
-<label>Total Project Cost (₹):</label>
-<input type="number" id="totalCost">
-</div>
-<div class="form-group">
-<label>Funds Released (₹):</label>
-<input type="number" id="fundsReleased">
-</div>
-</div>
-</div>
+      <div class="section">
+        <h2>🏗️ RAG Status</h2>
+        <div class="two-col">
+          <div class="form-group">
+            <label>Quality Status:</label>
+            <select id="qualityStatus" onchange="saveData()">
+              <option>Green</option>
+              <option>Amber</option>
+              <option>Red</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Timeline Status:</label>
+            <select id="timelineStatus" onchange="saveData()">
+              <option>Green</option>
+              <option>Amber</option>
+              <option>Red</option>
+            </select>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="form-group">
+            <label>Cost Status:</label>
+            <select id="costStatus" onchange="saveData()">
+              <option>Green</option>
+              <option>Amber</option>
+              <option>Red</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Safety Status:</label>
+            <select id="safetyStatus" onchange="saveData()">
+              <option>Green</option>
+              <option>Amber</option>
+              <option>Red</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-<h2>🏗️ RAG Status</h2>
-<div class="section">
-<div class="two-col">
-<div class="form-group">
-<label>Quality Status:</label>
-<select id="qualityStatus">
-<option value="GREEN">Green</option>
-<option value="AMBER">Amber</option>
-<option value="RED">Red</option>
-</select>
-</div>
-<div class="form-group">
-<label>Timeline Status:</label>
-<select id="timelineStatus">
-<option value="GREEN">Green</option>
-<option value="AMBER">Amber</option>
-<option value="RED">Red</option>
-</select>
-</div>
-<div class="form-group">
-<label>Cost Status:</label>
-<select id="costStatus">
-<option value="GREEN">Green</option>
-<option value="AMBER">Amber</option>
-<option value="RED">Red</option>
-</select>
-</div>
-<div class="form-group">
-<label>Safety Status:</label>
-<select id="safetyStatus">
-<option value="GREEN">Green</option>
-<option value="AMBER">Amber</option>
-<option value="RED">Red</option>
-</select>
-</div>
-</div>
-</div>
+      <div class="section">
+        <h2>🏢 Building Progress</h2>
+        <div id="buildingsContainer"></div>
+      </div>
 
-<h2>🏢 Building Progress</h2>
-<div class="section" id="buildingsContainer"></div>
+      <button class="save-btn" onclick="manualSync()">🚀 Save & Sync to All Devices</button>
+    </div>
+  </div>
 
-<button class="save-btn" onclick="handleSave()">🚀 Save & Sync to All Devices</button>
-</div>
-</div>
+  <script>
+    // Firebase Configuration - UPDATE WITH YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-<script>
-const ADMIN_PASSWORD = 'admin123';
-const BUILDINGS = ['External Development/Road', 'Junior & Senior Resident', 'Boys Hostel (G+8)', 'Nursing Girls Hostel (G+8)', 'Girls Hostel (G+6)', 'Hospital Block (B+G+7)', 'Service Block', 'Vishram Sarai (G+2)', 'Medical College (B+G+5)', 'Director & MS Residence', 'Paramedical Block (B+G+6)', 'Common Basement'];
-const SHARED_DATA_URL = 'https://raw.githubusercontent.com/pankajkapil/gmc-sirsa-dashboard/main/data.json';
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const adminPassword = "admin123";
+    let isOnline = false;
 
-function showStatus(message, isSuccess = true) {
-  const statusDiv = document.getElementById('status-message');
-  statusDiv.textContent = message;
-  statusDiv.className = 'status-msg ' + (isSuccess ? 'status-success' : 'status-error');
-  setTimeout(() => { statusDiv.textContent = ''; statusDiv.className = ''; }, 4000);
-}
+    // Building list
+    const buildings = [
+      "External Development/Road",
+      "Junior & Senior Resident",
+      "Boys Hostel (G+8)",
+      "Nursing Girls Hostel (G+8)",
+      "Girls Hostel (G+6)",
+      "Hospital Block (B+G+7)",
+      "Service Block",
+      "Vishram Sarai (G+2)",
+      "Medical College (B+G+5)",
+      "Director & MS Residence",
+      "Paramedical Block (B+G+6)",
+      "Common Basement"
+    ];
 
-function login() {
-  if (document.getElementById('password').value === ADMIN_PASSWORD) {
-    localStorage.setItem('adminLoggedIn', 'true');
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('admin-page').style.display = 'block';
-    loadData();
-  } else {
-    alert('Invalid password!');
-  }
-}
-
-function logout() {
-  localStorage.removeItem('adminLoggedIn');
-  document.getElementById('login-page').style.display = 'block';
-  document.getElementById('admin-page').style.display = 'none';
-  document.getElementById('password').value = '';
-}
-
-function loadData() {
-  fetch(SHARED_DATA_URL)
-    .then(r => r.json())
-    .catch(() => JSON.parse(localStorage.getItem('dashboardData') || '{}'))
-    .then(data => {
-      localStorage.setItem('dashboardData', JSON.stringify(data));
-      populateForm(data);
+    // Check Firebase connection
+    const connectedRef = db.ref('.info/connected');
+    connectedRef.on('value', (snapshot) => {
+      isOnline = snapshot.val();
+      updateConnectionStatus();
     });
-}
 
-function populateForm(data) {
-  document.getElementById('physicalProgress').value = data.physicalProgress || 26.87;
-  document.getElementById('financialProgress').value = data.financialProgress || 32.15;
-  document.getElementById('totalCost').value = data.totalCost || 8552;
-  document.getElementById('fundsReleased').value = data.fundsReleased || 4000;
-  document.getElementById('qualityStatus').value = data.qualityStatus || 'AMBER';
-  document.getElementById('timelineStatus').value = data.timelineStatus || 'RED';
-  document.getElementById('costStatus').value = data.costStatus || 'RED';
-  document.getElementById('safetyStatus').value = data.safetyStatus || 'RED';
-  renderBuildings(data.buildings || {});
-}
+    function updateConnectionStatus() {
+      const statusEl = document.getElementById('connectionStatus');
+      if (isOnline) {
+        statusEl.textContent = '✅ Online';
+        statusEl.className = 'connection-status status-online';
+      } else {
+        statusEl.textContent = '⚠️ Offline';
+        statusEl.className = 'connection-status status-offline';
+      }
+    }
 
-function renderBuildings(buildings) {
-  const container = document.getElementById('buildingsContainer');
-  container.innerHTML = '';
-  BUILDINGS.forEach(building => {
-    const div = document.createElement('div');
-    div.className = 'form-group';
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.min = '0';
-    input.max = '100';
-    input.value = buildings[building] || '0';
-    input.id = 'building_' + building;
-    const label = document.createElement('label');
-    label.textContent = building + ' (%)';
-    div.appendChild(label);
-    div.appendChild(input);
-    container.appendChild(div);
-  });
-}
+    function login() {
+      const pwd = document.getElementById('password').value;
+      if (pwd === adminPassword) {
+        localStorage.setItem('adminLoggedIn', 'true');
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('admin-page').style.display = 'block';
+        loadData();
+        renderBuildings();
+      } else {
+        alert('Invalid password');
+      }
+    }
 
-function handleSave() {
-  const saveBtn = event.target;
-  saveBtn.disabled = true;
-  saveBtn.textContent = '💾 Saving...';
-  
-  const data = {
-    physicalProgress: parseFloat(document.getElementById('physicalProgress').value),
-    financialProgress: parseFloat(document.getElementById('financialProgress').value),
-    totalCost: parseFloat(document.getElementById('totalCost').value),
-    fundsReleased: parseFloat(document.getElementById('fundsReleased').value),
-    qualityStatus: document.getElementById('qualityStatus').value,
-    timelineStatus: document.getElementById('timelineStatus').value,
-    costStatus: document.getElementById('costStatus').value,
-    safetyStatus: document.getElementById('safetyStatus').value,
-    buildings: {},
-    lastUpdated: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-  };
-  
-  BUILDINGS.forEach(building => {
-    data.buildings[building] = parseFloat(document.getElementById('building_' + building).value);
-  });
-  
-  localStorage.setItem('dashboardData', JSON.stringify(data));
-  localStorage.setItem('lastSyncTime', Date.now().toString());
-  
-  showStatus('✓ Data saved! Dashboard will refresh in 5 seconds.', true);
-  saveBtn.disabled = false;
-  saveBtn.textContent = '🚀 Save & Sync to All Devices';
-}
+    function logout() {
+      localStorage.removeItem('adminLoggedIn');
+      document.getElementById('login-page').style.display = 'block';
+      document.getElementById('admin-page').style.display = 'none';
+      document.getElementById('password').value = '';
+    }
 
-window.addEventListener('load', () => {
-  if (localStorage.getItem('adminLoggedIn') === 'true') {
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('admin-page').style.display = 'block';
-    loadData();
-  }
-});
-</script>
+    function renderBuildings() {
+      const container = document.getElementById('buildingsContainer');
+      container.innerHTML = '';
+      const grid = document.createElement('div');
+      grid.className = 'two-col';
+      
+      buildings.forEach(building => {
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `
+          <label>${building} (%):</label>
+          <input type="number" id="building_${building}" min="0" max="100" onchange="saveData()">
+        `;
+        grid.appendChild(div);
+      });
+      container.appendChild(grid);
+    }
+
+    function saveData() {
+      if (!isOnline) {
+        alert('No internet connection. Data will sync when online.');
+        return;
+      }
+
+      const data = {
+        physicalProgress: parseInt(document.getElementById('physicalProgress').value) || 0,
+        financialProgress: parseInt(document.getElementById('financialProgress').value) || 0,
+        totalCost: parseInt(document.getElementById('totalCost').value) || 0,
+        fundsReleased: parseInt(document.getElementById('fundsReleased').value) || 0,
+        qualityStatus: document.getElementById('qualityStatus').value,
+        timelineStatus: document.getElementById('timelineStatus').value,
+        costStatus: document.getElementById('costStatus').value,
+        safetyStatus: document.getElementById('safetyStatus').value,
+        timestamp: new Date().toISOString()
+      };
+
+      // Add building data
+      buildings.forEach(building => {
+        data[`building_${building}`] = parseInt(document.getElementById(`building_${building}`).value) || 0;
+      });
+
+      // Save to Firebase
+      db.ref('projectData').set(data).then(() => {
+        showMessage('✅ Data synced to all devices!', 'success');
+        // Also save to localStorage as backup
+        localStorage.setItem('projectData', JSON.stringify(data));
+      }).catch(error => {
+        showMessage('❌ Error syncing: ' + error.message, 'error');
+      });
+    }
+
+    function loadData() {
+      // Try Firebase first
+      db.ref('projectData').on('value', (snapshot) => {
+        let data = snapshot.val();
+        
+        // If no Firebase data, try localStorage
+        if (!data) {
+          const stored = localStorage.getItem('projectData');
+          data = stored ? JSON.parse(stored) : {};
+        }
+
+        if (data) {
+          document.getElementById('physicalProgress').value = data.physicalProgress || 0;
+          document.getElementById('financialProgress').value = data.financialProgress || 0;
+          document.getElementById('totalCost').value = data.totalCost || 0;
+          document.getElementById('fundsReleased').value = data.fundsReleased || 0;
+          document.getElementById('qualityStatus').value = data.qualityStatus || 'Green';
+          document.getElementById('timelineStatus').value = data.timelineStatus || 'Green';
+          document.getElementById('costStatus').value = data.costStatus || 'Green';
+          document.getElementById('safetyStatus').value = data.safetyStatus || 'Amber';
+
+          buildings.forEach(building => {
+            const el = document.getElementById(`building_${building}`);
+            if (el) {
+              el.value = data[`building_${building}`] || 0;
+            }
+          });
+        }
+      });
+    }
+
+    function manualSync() {
+      saveData();
+    }
+
+    function showMessage(msg, type) {
+      const msgEl = document.getElementById('status-message');
+      msgEl.textContent = msg;
+      msgEl.className = 'status-msg status-' + type;
+      msgEl.style.display = 'block';
+      setTimeout(() => {
+        msgEl.style.display = 'none';
+      }, 3000);
+    }
+
+    // Check login status on page load
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('adminLoggedIn') === 'true') {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('admin-page').style.display = 'block';
+        renderBuildings();
+        loadData();
+      }
+    });
+  </script>
 </body>
 </html>
