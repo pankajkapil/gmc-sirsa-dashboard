@@ -110,6 +110,7 @@ h1, h2 { color: #333; margin-bottom: 20px; }
 <script>
 const ADMIN_PASSWORD = 'admin123';
 const BUILDINGS = ['External Development/Road', 'Junior & Senior Resident', 'Boys Hostel (G+8)', 'Nursing Girls Hostel (G+8)', 'Girls Hostel (G+6)', 'Hospital Block (B+G+7)', 'Service Block', 'Vishram Sarai (G+2)', 'Medical College (B+G+5)', 'Director & MS Residence', 'Paramedical Block (B+G+6)', 'Common Basement'];
+const SHARED_DATA_URL = 'https://raw.githubusercontent.com/pankajkapil/gmc-sirsa-dashboard/main/data.json';
 
 function showStatus(message, isSuccess = true) {
   const statusDiv = document.getElementById('status-message');
@@ -137,8 +138,13 @@ function logout() {
 }
 
 function loadData() {
-  const data = JSON.parse(localStorage.getItem('dashboardData')) || {};
-  populateForm(data);
+  fetch(SHARED_DATA_URL)
+    .then(r => r.json())
+    .catch(() => JSON.parse(localStorage.getItem('dashboardData') || '{}'))
+    .then(data => {
+      localStorage.setItem('dashboardData', JSON.stringify(data));
+      populateForm(data);
+    });
 }
 
 function populateForm(data) {
@@ -196,8 +202,9 @@ function handleSave() {
   });
   
   localStorage.setItem('dashboardData', JSON.stringify(data));
+  localStorage.setItem('lastSyncTime', Date.now().toString());
   
-  showStatus('✓ Data saved! All devices will sync in next 5 seconds.', true);
+  showStatus('✓ Data saved! Dashboard will refresh in 5 seconds.', true);
   saveBtn.disabled = false;
   saveBtn.textContent = '🚀 Save & Sync to All Devices';
 }
