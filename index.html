@@ -15,14 +15,6 @@ header p { font-size: 14px; opacity: 0.9; }
 .kpi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .kpi-card h3 { color: #555; font-size: 14px; margin-bottom: 10px; }
 .kpi-card .value { font-size: 28px; font-weight: bold; color: #003d82; }
-.kpi-card .unit { font-size: 12px; color: #999; margin-top: 5px; }
-.rag-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-.rag-item { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
-.rag-item h4 { font-size: 14px; margin-bottom: 10px; }
-.rag-badge { display: inline-block; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; }
-.rag-green { background: #28a745; color: white; }
-.rag-amber { background: #ffc107; color: black; }
-.rag-red { background: #dc3545; color: white; }
 .section { background: white; padding: 25px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .section h2 { color: #003d82; margin-bottom: 20px; border-bottom: 2px solid #003d82; padding-bottom: 10px; }
 .building-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
@@ -35,6 +27,13 @@ header p { font-size: 14px; opacity: 0.9; }
 .financial-table th { background: #003d82; color: white; padding: 12px; text-align: left; }
 .financial-table td { padding: 12px; border-bottom: 1px solid #ddd; }
 .financial-table tr:hover { background: #f9f9f9; }
+.rag-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+.rag-item { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+.rag-item h4 { font-size: 14px; margin-bottom: 10px; }
+.rag-badge { display: inline-block; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+.rag-green { background: #28a745; color: white; }
+.rag-amber { background: #ffc107; color: black; }
+.rag-red { background: #dc3545; color: white; }
 </style>
 </head>
 <body>
@@ -49,14 +48,8 @@ header p { font-size: 14px; opacity: 0.9; }
 <div class="section">
 <h2>Financial Status</h2>
 <table class="financial-table">
-<thead>
-<tr>
-<th>Metric</th>
-<th>Amount</th>
-</tr>
-</thead>
-<tbody id="financialTableBody">
-</tbody>
+<thead><tr><th>Metric</th><th>Amount</th></tr></thead>
+<tbody id="financialTableBody"></tbody>
 </table>
 </div>
 
@@ -75,66 +68,14 @@ header p { font-size: 14px; opacity: 0.9; }
 </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
 <script>
-let db = null;
 const BUILDINGS = ['External Development/Road', 'Junior & Senior Resident', 'Boys Hostel (G+8)', 'Nursing Girls Hostel (G+8)', 'Girls Hostel (G+6)', 'Hospital Block (B+G+7)', 'Service Block', 'Vishram Sarai (G+2)', 'Medical College (B+G+5)', 'Director & MS Residence', 'Paramedical Block (B+G+6)', 'Common Basement'];
+const DEFAULT_DATA = { physicalProgress: 26.87, financialProgress: 32.15, totalCost: 8552, fundsReleased: 4000, qualityStatus: 'AMBER', timelineStatus: 'RED', costStatus: 'RED', safetyStatus: 'RED', buildings: {}, lastUpdated: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) };
 
-const DEFAULT_DATA = {
-  physicalProgress: 26.87,
-  financialProgress: 32.15,
-  totalCost: 8552,
-  fundsReleased: 4000,
-  qualityStatus: 'AMBER',
-  timelineStatus: 'RED',
-  costStatus: 'RED',
-  safetyStatus: 'RED',
-  buildings: {},
-  lastUpdated: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-};
+BUILDINGS.forEach(b => { DEFAULT_DATA.buildings[b] = Math.floor(Math.random() * 35); });
 
-BUILDINGS.forEach(building => { DEFAULT_DATA.buildings[building] = Math.floor(Math.random() * 35); });
-
-function initFirebase() {
-  const firebaseConfig = {
-    apiKey: localStorage.getItem('firebaseApiKey') || 'ENTER_YOUR_API_KEY',
-    authDomain: localStorage.getItem('firebaseAuthDomain') || 'ENTER_YOUR_AUTH_DOMAIN',
-    databaseURL: localStorage.getItem('firebaseDatabaseURL') || 'ENTER_YOUR_DATABASE_URL',
-    projectId: localStorage.getItem('firebaseProjectId') || 'ENTER_YOUR_PROJECT_ID',
-    storageBucket: localStorage.getItem('firebaseStorageBucket') || 'ENTER_YOUR_STORAGE_BUCKET',
-    messagingSenderId: localStorage.getItem('firebaseMessagingSenderId') || 'ENTER_YOUR_MESSAGING_SENDER_ID',
-    appId: localStorage.getItem('firebaseAppId') || 'ENTER_YOUR_APP_ID'
-  };
-
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    console.log('Firebase initialized');
-  } catch (error) {
-    console.warn('Firebase not configured. Using localStorage + DEFAULT_DATA.');
-  }
-}
-
-function loadDashboardData() {
-  let data = JSON.parse(localStorage.getItem('dashboardData')) || DEFAULT_DATA;
-  
-  if (db) {
-    db.ref('gmcSirsa').on('value', (snapshot) => {
-      if (snapshot.exists()) {
-        data = snapshot.val();
-      }
-      updateDashboard(data);
-    }, (error) => {
-      console.log('Firebase read error, using localStorage:', error);
-      updateDashboard(data);
-    });
-  } else {
-    updateDashboard(data);
-  }
-}
-
-function updateDashboard(data) {
+function loadAndDisplay() {
+  const data = JSON.parse(localStorage.getItem('dashboardData')) || DEFAULT_DATA;
   updateKPIs(data);
   updateFinancialTable(data);
   updateRAGStatus(data);
@@ -145,22 +86,10 @@ function updateDashboard(data) {
 function updateKPIs(data) {
   const container = document.getElementById('kpiContainer');
   container.innerHTML = `
-    <div class="kpi-card">
-      <h3>Physical Progress</h3>
-      <div class="value">${(data.physicalProgress || 0).toFixed(2)}%</div>
-    </div>
-    <div class="kpi-card">
-      <h3>Financial Progress</h3>
-      <div class="value">${(data.financialProgress || 0).toFixed(2)}%</div>
-    </div>
-    <div class="kpi-card">
-      <h3>Total Project Cost</h3>
-      <div class="value">\u20b9${(data.totalCost || 0).toLocaleString('en-IN')}</div>
-    </div>
-    <div class="kpi-card">
-      <h3>Funds Released</h3>
-      <div class="value">\u20b9${(data.fundsReleased || 0).toLocaleString('en-IN')}</div>
-    </div>
+    <div class="kpi-card"><h3>Physical Progress</h3><div class="value">${(data.physicalProgress || 0).toFixed(2)}%</div></div>
+    <div class="kpi-card"><h3>Financial Progress</h3><div class="value">${(data.financialProgress || 0).toFixed(2)}%</div></div>
+    <div class="kpi-card"><h3>Total Project Cost</h3><div class="value">\u20b9${(data.totalCost || 0).toLocaleString('en-IN')}</div></div>
+    <div class="kpi-card"><h3>Funds Released</h3><div class="value">\u20b9${(data.fundsReleased || 0).toLocaleString('en-IN')}</div></div>
   `;
 }
 
@@ -170,7 +99,6 @@ function updateFinancialTable(data) {
   const fundsReleased = data.fundsReleased || 0;
   const financialProgress = ((fundsReleased / totalCost) * 100).toFixed(2);
   const fundingGap = totalCost - fundsReleased;
-  
   tbody.innerHTML = `
     <tr><td>Total Project Cost</td><td>\u20b9${totalCost.toLocaleString('en-IN')} Cr</td></tr>
     <tr><td>Financial Progress</td><td>\u20b9${fundsReleased.toLocaleString('en-IN')} Cr (${financialProgress}%)</td></tr>
@@ -181,52 +109,29 @@ function updateFinancialTable(data) {
 
 function updateRAGStatus(data) {
   const container = document.getElementById('ragStatusContainer');
-  const statusClass = (status) => status === 'GREEN' ? 'rag-green' : status === 'AMBER' ? 'rag-amber' : 'rag-red';
-  
+  const statusClass = (s) => s === 'GREEN' ? 'rag-green' : s === 'AMBER' ? 'rag-amber' : 'rag-red';
   container.innerHTML = `
-    <div class="rag-item">
-      <h4>Quality</h4>
-      <div class="rag-badge ${statusClass(data.qualityStatus)}">${data.qualityStatus || 'AMBER'}</div>
-    </div>
-    <div class="rag-item">
-      <h4>Timeline</h4>
-      <div class="rag-badge ${statusClass(data.timelineStatus)}">${data.timelineStatus || 'RED'}</div>
-    </div>
-    <div class="rag-item">
-      <h4>Cost</h4>
-      <div class="rag-badge ${statusClass(data.costStatus)}">${data.costStatus || 'RED'}</div>
-    </div>
-    <div class="rag-item">
-      <h4>Safety</h4>
-      <div class="rag-badge ${statusClass(data.safetyStatus)}">${data.safetyStatus || 'RED'}</div>
-    </div>
+    <div class="rag-item"><h4>Quality</h4><div class="rag-badge ${statusClass(data.qualityStatus)}">${data.qualityStatus || 'AMBER'}</div></div>
+    <div class="rag-item"><h4>Timeline</h4><div class="rag-badge ${statusClass(data.timelineStatus)}">${data.timelineStatus || 'RED'}</div></div>
+    <div class="rag-item"><h4>Cost</h4><div class="rag-badge ${statusClass(data.costStatus)}">${data.costStatus || 'RED'}</div></div>
+    <div class="rag-item"><h4>Safety</h4><div class="rag-badge ${statusClass(data.safetyStatus)}">${data.safetyStatus || 'RED'}</div></div>
   `;
 }
 
 function updateBuildings(buildings) {
   const container = document.getElementById('buildingsContainer');
   container.innerHTML = '';
-  
   BUILDINGS.forEach(building => {
     const progress = buildings[building] || 0;
     const card = document.createElement('div');
     card.className = 'building-card';
-    card.innerHTML = `
-      <h3>${building}</h3>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progress}%;">${progress}%</div>
-      </div>
-    `;
+    card.innerHTML = `<h3>${building}</h3><div class="progress-bar"><div class="progress-fill" style="width: ${progress}%;">${progress}%</div></div>`;
     container.appendChild(card);
   });
 }
 
-window.addEventListener('load', () => {
-  initFirebase();
-  loadDashboardData();
-});
-
-setInterval(loadDashboardData, 5000);
+window.addEventListener('load', loadAndDisplay);
+setInterval(loadAndDisplay, 5000);
 </script>
 </body>
 </html>
