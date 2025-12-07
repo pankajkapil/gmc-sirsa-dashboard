@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GMC Sirsa Medical College - Project Dashboard</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+  <title>GMC Sirsa - Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
@@ -13,27 +11,28 @@
     header { background: #003d82; color: white; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 30px; }
     header h1 { font-size: 28px; margin-bottom: 5px; }
     header p { font-size: 14px; opacity: 0.9; }
-    .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .kpi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .kpi-card h3 { color: #555; font-size: 14px; margin-bottom: 10px; }
-    .kpi-card .value { font-size: 28px; font-weight: bold; color: #003d82; }
+    .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .kpi-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; border-top: 4px solid #007bff; }
+    .kpi-card h3 { color: #666; font-size: 13px; margin-bottom: 15px; text-transform: uppercase; }
+    .kpi-card .value { font-size: 36px; font-weight: bold; color: #003d82; word-break: break-word; }
+    .kpi-card .unit { font-size: 12px; color: #999; margin-top: 5px; }
     .section { background: white; padding: 25px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     .section h2 { color: #003d82; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #003d82; padding-bottom: 10px; }
-    .section h3 { color: #555; font-size: 16px; margin-top: 15px; margin-bottom: 10px; }
-    .rag-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .rag-item { padding: 15px; border-radius: 6px; text-align: center; font-weight: bold; color: white; }
+    .rag-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .rag-item { padding: 20px; border-radius: 6px; text-align: center; font-weight: bold; color: white; font-size: 14px; }
     .status-green { background: #28a745; }
     .status-amber { background: #ffc107; color: #333; }
     .status-red { background: #dc3545; }
     .building-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
     .building-item { background: #f9f9f9; padding: 15px; border-radius: 6px; border-left: 4px solid #007bff; }
-    .building-item h4 { color: #333; margin-bottom: 8px; }
-    .progress-bar { background: #e0e0e0; border-radius: 4px; height: 25px; overflow: hidden; }
-    .progress-fill { background: #28a745; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; }
-    .last-updated { font-size: 12px; color: #999; margin-top: 15px; }
+    .building-item h4 { color: #333; margin-bottom: 10px; font-size: 14px; }
+    .progress-bar { background: #e0e0e0; border-radius: 4px; height: 30px; overflow: hidden; }
+    .progress-fill { background: linear-gradient(90deg, #28a745, #20c997); height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; transition: width 0.3s; }
+    .last-updated { font-size: 12px; color: #999; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; }
     .link-section { text-align: center; margin-top: 20px; }
-    .link-section a { display: inline-block; margin: 0 10px; padding: 10px 20px; background: #003d82; color: white; text-decoration: none; border-radius: 4px; }
+    .link-section a { display: inline-block; margin: 0 10px; padding: 10px 20px; background: #003d82; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; }
     .link-section a:hover { background: #002856; }
+    .sync-badge { display: inline-block; padding: 5px 10px; background: #e7f3ff; color: #0066cc; border-radius: 4px; font-size: 11px; margin-left: 10px; }
   </style>
 </head>
 <body>
@@ -48,22 +47,22 @@
       <div class="kpi-card">
         <h3>Physical Progress</h3>
         <div class="value" id="physicalProgress">-</div>
-        <p>%</p>
+        <div class="unit">%</div>
       </div>
       <div class="kpi-card">
         <h3>Financial Progress</h3>
         <div class="value" id="financialProgress">-</div>
-        <p>%</p>
+        <div class="unit">%</div>
       </div>
       <div class="kpi-card">
         <h3>Total Project Cost</h3>
-        <div class="value" id="totalCost">-</div>
-        <p>₹ (Crores)</p>
+        <div class="value" id="totalProjectCost">-</div>
+        <div class="unit">₹ Crores</div>
       </div>
       <div class="kpi-card">
         <h3>Funds Released</h3>
-        <div class="value" id="fundsReleased">-</div>
-        <p>₹ (Crores)</p>
+        <div class="value" id="totalFundsReleased">-</div>
+        <div class="unit">₹ Crores</div>
       </div>
     </div>
 
@@ -96,40 +95,19 @@
       <div class="building-grid" id="buildingsGrid"></div>
     </div>
 
-    <!-- Footer Links -->
+    <!-- Footer -->
     <div class="section link-section">
       <a href="admin.html">📊 Admin Dashboard</a>
-      <a href="https://github.com/pankajkapil/gmc-sirsa-dashboard" target="_blank">📁 GitHub Repository</a>
+      <a href="https://github.com/pankajkapil/gmc-sirsa-dashboard" target="_blank">📁 GitHub</a>
     </div>
 
     <div class="last-updated">
-      Last Updated: <span id="lastUpdated">-</span> | Status: <span id="syncStatus">Loading...</span>
+      ✅ Last Updated: <span id="lastUpdated">-</span> <span class="sync-badge">Synced from Admin</span>
     </div>
   </div>
 
   <script>
-    // Firebase Config - UPDATE THESE VALUES
-    const firebaseConfig = {
-      apiKey: "PASTE_YOUR_API_KEY_HERE",
-      authDomain: "PASTE_YOUR_AUTH_DOMAIN_HERE",
-      databaseURL: "PASTE_YOUR_DATABASE_URL_HERE",
-      projectId: "PASTE_YOUR_PROJECT_ID_HERE",
-      storageBucket: "PASTE_YOUR_STORAGE_BUCKET_HERE",
-      messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID_HERE",
-      appId: "PASTE_YOUR_APP_ID_HERE"
-    };
-
-    let db = null;
-    let firebaseInitialized = false;
-    
-    try {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
-      firebaseInitialized = true;
-    } catch (e) {
-      console.warn('Firebase init failed, using localStorage fallback');
-    }
-
+    const SYNC_KEY = "gmcDashboardData_v2";
     const buildings = [
       "External Development/Road",
       "Junior & Senior Resident",
@@ -145,15 +123,54 @@
       "Common Basement"
     ];
 
-    function renderBuildings() {
+    function updateStatusColor(elementId, status) {
+      const div = document.getElementById(elementId + 'Div');
+      if (div) {
+        div.className = 'rag-item status-' + (status ? status.toLowerCase() : 'green');
+      }
+    }
+
+    function displayDashboard() {
+      const stored = localStorage.getItem(SYNC_KEY);
+      if (!stored) {
+        console.log('No data found in localStorage yet. Fill admin form first.');
+        return;
+      }
+
+      const data = JSON.parse(stored);
+
+      // Display KPIs with proper number handling
+      document.getElementById('physicalProgress').textContent = data.physicalProgress || '0';
+      document.getElementById('financialProgress').textContent = data.financialProgress || '0';
+      
+      // FIX: Use proper number display for financial fields
+      const totalCost = parseFloat(data.totalProjectCost) || 0;
+      const fundsReleased = parseFloat(data.totalFundsReleased) || 0;
+      
+      document.getElementById('totalProjectCost').textContent = totalCost > 0 ? totalCost.toFixed(2) : '-';
+      document.getElementById('totalFundsReleased').textContent = fundsReleased > 0 ? fundsReleased.toFixed(2) : '-';
+
+      // Display RAG Status
+      const qualityStatus = data.qualityStatus || 'GREEN';
+      const timelineStatus = data.timelineStatus || 'GREEN';
+      const costStatus = data.costStatus || 'GREEN';
+      const safetyStatus = data.safetyStatus || 'GREEN';
+
+      document.getElementById('qualityStatus').textContent = qualityStatus;
+      document.getElementById('timelineStatus').textContent = timelineStatus;
+      document.getElementById('costStatus').textContent = costStatus;
+      document.getElementById('safetyStatus').textContent = safetyStatus;
+
+      updateStatusColor('quality', qualityStatus);
+      updateStatusColor('timeline', timelineStatus);
+      updateStatusColor('cost', costStatus);
+      updateStatusColor('safety', safetyStatus);
+
+      // Display Buildings
       const grid = document.getElementById('buildingsGrid');
       grid.innerHTML = '';
-      
-      const stored = localStorage.getItem('projectData');
-      const data = stored ? JSON.parse(stored) : {};
-      
       buildings.forEach(building => {
-        const progress = data[`building_${building}`] || 0;
+        const progress = data['building_' + building] || 0;
         const div = document.createElement('div');
         div.className = 'building-item';
         div.innerHTML = `
@@ -164,85 +181,25 @@
         `;
         grid.appendChild(div);
       });
-    }
 
-    function updateStatusColor(elementId, status) {
-      const el = document.getElementById(elementId + 'Div');
-      if (el) {
-        el.classList.remove('status-green', 'status-amber', 'status-red');
-        el.classList.add(`status-${status.toLowerCase()}`);
+      // Display Last Updated
+      if (data.lastUpdated) {
+        document.getElementById('lastUpdated').textContent = data.lastUpdated;
       }
     }
 
-    function updateDashboard(data) {
-      if (!data) return;
-      
-      document.getElementById('physicalProgress').textContent = data.physicalProgress || 0;
-      document.getElementById('financialProgress').textContent = data.financialProgress || 0;
-      document.getElementById('totalCost').textContent = (data.totalCost / 10000000).toFixed(2) || 0;
-      document.getElementById('fundsReleased').textContent = (data.fundsReleased / 10000000).toFixed(2) || 0;
-      
-      document.getElementById('qualityStatus').textContent = data.qualityStatus || 'Green';
-      document.getElementById('timelineStatus').textContent = data.timelineStatus || 'Green';
-      document.getElementById('costStatus').textContent = data.costStatus || 'Green';
-      document.getElementById('safetyStatus').textContent = data.safetyStatus || 'Amber';
-      
-      updateStatusColor('quality', data.qualityStatus || 'Green');
-      updateStatusColor('timeline', data.timelineStatus || 'Green');
-      updateStatusColor('cost', data.costStatus || 'Green');
-      updateStatusColor('safety', data.safetyStatus || 'Amber');
-      
-      // Update timestamp
-      if (data.timestamp) {
-        const date = new Date(data.timestamp);
-        document.getElementById('lastUpdated').textContent = date.toLocaleString('en-IN');
-      }
-      
-      renderBuildings();
-    }
-
-    function setupRealTimeSync() {
-      if (firebaseInitialized && db) {
-        document.getElementById('syncStatus').textContent = '✅ Firebase Synced';
-        
-        db.ref('projectData').on('value', (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            localStorage.setItem('projectData', JSON.stringify(data));
-            updateDashboard(data);
-          }
-        });
-      } else {
-        document.getElementById('syncStatus').textContent = '📦 Local Storage';
-        // Load from localStorage if Firebase is not available
-        const stored = localStorage.getItem('projectData');
-        if (stored) {
-          updateDashboard(JSON.parse(stored));
-        }
-      }
-    }
-
-    // Initialize dashboard on page load
+    // Load dashboard on page load
     window.addEventListener('load', () => {
-      setupRealTimeSync();
-      
-      // Refresh Firebase sync every 5 seconds
-      setInterval(() => {
-        if (firebaseInitialized && db) {
-          db.ref('projectData').once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-              localStorage.setItem('projectData', JSON.stringify(data));
-              updateDashboard(data);
-            }
-          });
-        } else {
-          const stored = localStorage.getItem('projectData');
-          if (stored) {
-            updateDashboard(JSON.parse(stored));
-          }
-        }
-      }, 5000);
+      displayDashboard();
+      // Refresh every 5 seconds to check for updates
+      setInterval(displayDashboard, 5000);
+    });
+
+    // Also refresh when user returns to tab
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        displayDashboard();
+      }
     });
   </script>
 </body>
