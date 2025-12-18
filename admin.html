@@ -9,6 +9,7 @@
     body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
     .admin-panel { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     h1 { color: #2c3e50; margin-bottom: 20px; }
+    h2 { color: #34495e; margin-top: 20px; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
     input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
@@ -20,7 +21,9 @@
     .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     .section { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .photo-preview { max-width: 150px; max-height: 150px; margin-top: 10px; border-radius: 4px; }
+    @media(max-width: 768px) { .two-col { grid-template-columns: 1fr; } .three-col { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -106,8 +109,17 @@
     </div>
 
     <div class="section">
-      <h2>Building-wise Progress</h2>
-      <div id="buildings-container"></div>
+      <h2>📄 Building-wise Progress</h2>
+      <div class="three-col" id="buildings-container"></div>
+    </div>
+
+    <div class="section">
+      <h2>📷 Photo Gallery</h2>
+      <div class="form-group">
+        <label>Upload Photo</label>
+        <input type="file" id="photoInput" accept="image/*" multiple>
+      </div>
+      <div id="photosContainer" class="three-col"></div>
     </div>
 
     <div>
@@ -122,7 +134,6 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
     import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
 
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC9eAcBdH0pu4NLVwLT-g_0Gn7Ly2Y5Zxw",
       authDomain: "rudransh-kapil.firebaseapp.com",
@@ -135,19 +146,30 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const buildings = ['Block A', 'Block B', 'Block C', 'Block D', 'Block E', 'Admin Building'];
+    const buildings = [
+      'External Development/Road',
+      'Junior & Senior Resident (S+12)',
+      'Boys Hostel (G+8)',
+      'Nursing Girls Hostel (G+8)',
+      'Girls Hostel (G+6)',
+      'Hospital Block (B+G+7)',
+      'Service Block',
+      'Vishram Sarai (G+2)',
+      'Medical College (B+G+5)',
+      'Director & MS Residence (G+1)',
+      'Paramedical Block (B+G+6)',
+      'Common Basement'
+    ];
     const SYNC_KEY = 'gmc_sirsa_sync_data';
 
-    // Initialize buildings container
     function renderBuildings() {
       const container = document.getElementById('buildings-container');
-      container.innerHTML = '<div class="two-col">' + buildings.map(b => {
+      container.innerHTML = buildings.map(b => {
         const safeId = 'building_' + b.replace(/[^a-zA-Z0-9]/g, '_');
-        return `<div class="form-group"><label>${b} Progress (%)</label><input type="number" id="${safeId}" min="0" max="100" placeholder="0-100"></div>`;
-      }).join('') + '</div>';
+        return `<div class="form-group"><label>${b}</label><input type="number" id="${safeId}" min="0" max="100" placeholder="0-100"></div>`;
+      }).join('');
     }
 
-    // Save data to Firebase
     function saveData() {
       const data = {
         physicalProgress: parseInt(document.getElementById('physicalProgress').value) || 0,
@@ -168,24 +190,20 @@
         data['building_' + building] = parseInt(document.getElementById(safeId).value) || 0;
       });
 
-      // Save to localStorage
       localStorage.setItem(SYNC_KEY, JSON.stringify(data));
-
-      // Sync to Firebase
       const syncRef = ref(db, 'dashboard/current');
       set(syncRef, data).then(() => {
-        showMessage('✅ Data synced to Firebase successfully!');
+        showMessage('✅ Data synced successfully!');
       }).catch(error => {
-        showMessage('❌ Error syncing to Firebase: ' + error.message);
+        showMessage('❌ Error: ' + error.message);
       });
     }
 
-    // Load data from localStorage/Firebase
     function loadData() {
       const stored = localStorage.getItem(SYNC_KEY);
       if (!stored) return;
-      
       const data = JSON.parse(stored);
+      
       document.getElementById('physicalProgress').value = data.physicalProgress || '';
       document.getElementById('financialProgress').value = data.financialProgress || '';
       document.getElementById('totalProjectCost').value = data.totalProjectCost || '';
@@ -206,7 +224,6 @@
       });
     }
 
-    // Show status message
     function showMessage(msg) {
       const el = document.getElementById('status-message');
       el.textContent = msg;
@@ -215,7 +232,6 @@
       setTimeout(() => { el.style.display = 'none'; }, 3000);
     }
 
-    // Listen to Firebase changes
     function listenToFirebase() {
       const syncRef = ref(db, 'dashboard/current');
       onValue(syncRef, (snapshot) => {
@@ -227,14 +243,12 @@
       });
     }
 
-    // Initialize on page load
     window.addEventListener('load', () => {
       renderBuildings();
       loadData();
       listenToFirebase();
     });
 
-    // Expose functions to global scope
     window.saveData = saveData;
   </script>
 </body>
