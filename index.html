@@ -25,7 +25,7 @@
     .status-red { background: #f8d7da; color: #721c24; }
     .buildings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
     .building-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; text-align: center; }
-    .building-name { font-size: 14px; margin-bottom: 10px; font-weight: bold; }
+    .building-name { font-size: 13px; margin-bottom: 10px; font-weight: bold; }
     .building-progress { font-size: 24px; font-weight: bold; }
     .loading { text-align: center; color: white; font-size: 18px; }
     button { background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
@@ -121,7 +121,6 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
     import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
 
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC9eAcBdH0pu4NLVwLT-g_0Gn7Ly2Y5Zxw",
       authDomain: "rudransh-kapil.firebaseapp.com",
@@ -133,6 +132,21 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
+    const buildings = [
+      'External Development/Road',
+      'Junior & Senior Resident (S+12)',
+      'Boys Hostel (G+8)',
+      'Nursing Girls Hostel (G+8)',
+      'Girls Hostel (G+6)',
+      'Hospital Block (B+G+7)',
+      'Service Block',
+      'Vishram Sarai (G+2)',
+      'Medical College (B+G+5)',
+      'Director & MS Residence (G+1)',
+      'Paramedical Block (B+G+6)',
+      'Common Basement'
+    ];
 
     function formatNumber(num) {
       return new Intl.NumberFormat('en-IN').format(num || 0);
@@ -148,22 +162,18 @@
     function displayData(data) {
       if (!data) return;
 
-      // Physical Progress
       document.getElementById('physicalProgress').textContent = data.physicalProgress + '%';
       document.getElementById('physicalProgressBar').style.width = data.physicalProgress + '%';
       document.getElementById('physicalProgressBar').textContent = data.physicalProgress + '%';
 
-      // Financial Progress
       document.getElementById('financialProgress').textContent = data.financialProgress + '%';
       document.getElementById('financialProgressBar').style.width = data.financialProgress + '%';
       document.getElementById('financialProgressBar').textContent = data.financialProgress + '%';
 
-      // Financial Details
       document.getElementById('totalProjectCost').textContent = formatNumber(data.totalProjectCost);
       document.getElementById('totalFundsReleased').textContent = formatNumber(data.totalFundsReleased);
       document.getElementById('fundingGap').textContent = formatNumber(data.fundingGap);
 
-      // Status Indicators
       document.getElementById('qualityStatus').textContent = data.qualityStatus || 'GREEN';
       document.getElementById('qualityStatus').className = 'status-badge ' + getStatusClass(data.qualityStatus);
 
@@ -176,10 +186,8 @@
       document.getElementById('safetyStatus').textContent = data.safetyStatus || 'GREEN';
       document.getElementById('safetyStatus').className = 'status-badge ' + getStatusClass(data.safetyStatus);
 
-      // Building-wise Progress
       const buildingsContainer = document.getElementById('buildingsContainer');
       buildingsContainer.innerHTML = '';
-      const buildings = ['Block A', 'Block B', 'Block C', 'Block D', 'Block E', 'Admin Building'];
       buildings.forEach(building => {
         const key = 'building_' + building;
         const progress = data[key] || 0;
@@ -189,17 +197,14 @@
         buildingsContainer.appendChild(buildingCard);
       });
 
-      // Last Updated
       if (data.lastUpdated) {
         document.getElementById('last-updated').textContent = '🔄 Last Updated: ' + data.lastUpdated;
       }
 
-      // Show content, hide loading
       document.getElementById('loading').style.display = 'none';
       document.getElementById('content').style.display = 'block';
     }
 
-    // Listen to Firebase data
     const dbRef = ref(db, 'dashboard/current');
     onValue(dbRef, (snapshot) => {
       if (snapshot.exists()) {
